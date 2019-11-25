@@ -2,14 +2,6 @@
 
 mod grapheme;
 
-use std::borrow::Cow;
-use std::fmt;
-
-use cairo::{
-    BorrowError, Context, Filter, FontFace, FontOptions, FontSlant, FontWeight, Format,
-    ImageSurface, Matrix, ScaledFont, Status, SurfacePattern,
-};
-
 use piet::kurbo::{Affine, PathEl, Point, QuadBez, Rect, Shape};
 
 use piet::{
@@ -22,23 +14,23 @@ use unicode_segmentation::UnicodeSegmentation;
 
 use crate::grapheme::point_x_in_grapheme;
 
-pub struct CairoRenderContext<'a> {
-    // Cairo has this as Clone and with &self methods, but we do this to avoid
+pub struct EmbeddedGraphicsRenderContext<'a> {
+    // EmbeddedGraphics has this as Clone and with &self methods, but we do this to avoid
     // concurrency problems.
     ctx: &'a mut Context,
-    text: CairoText,
+    text: EmbeddedGraphicsText,
 }
 
-impl<'a> CairoRenderContext<'a> {
-    /// Create a new Cairo back-end.
+impl<'a> EmbeddedGraphicsRenderContext<'a> {
+    /// Create a new EmbeddedGraphics back-end.
     ///
     /// At the moment, it uses the "toy text API" for text layout, but when
     /// we change to a more sophisticated text layout approach, we'll probably
     /// need a factory for that as an additional argument.
-    pub fn new(ctx: &mut Context) -> CairoRenderContext {
-        CairoRenderContext {
+    pub fn new(ctx: &mut Context) -> EmbeddedGraphicsRenderContext {
+        EmbeddedGraphicsRenderContext {
             ctx,
-            text: CairoText,
+            text: EmbeddedGraphicsText,
         }
     }
 }
@@ -46,36 +38,36 @@ impl<'a> CairoRenderContext<'a> {
 #[derive(Clone)]
 pub enum Brush {
     Solid(u32),
-    Linear(cairo::LinearGradient),
-    Radial(cairo::RadialGradient),
+    Linear(embedded_graphics::LinearGradient),
+    Radial(embedded_graphics::RadialGradient),
 }
 
 /// Right now, we don't need any state, as the "toy text API" treats the
 /// access to system font information as a global. This will change.
-pub struct CairoText;
+pub struct EmbeddedGraphicsText;
 
-pub struct CairoFont(ScaledFont);
+pub struct EmbeddedGraphicsFont(ScaledFont);
 
-pub struct CairoFontBuilder {
+pub struct EmbeddedGraphicsFontBuilder {
     family: String,
     weight: FontWeight,
     slant: FontSlant,
     size: f64,
 }
 
-pub struct CairoTextLayout {
+pub struct EmbeddedGraphicsTextLayout {
     font: ScaledFont,
     text: String,
 }
 
-pub struct CairoTextLayoutBuilder(CairoTextLayout);
+pub struct EmbeddedGraphicsTextLayoutBuilder(EmbeddedGraphicsTextLayout);
 
 #[derive(Debug)]
 struct WrappedStatus(Status);
 
 impl fmt::Display for WrappedStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Cairo error: {:?}", self.0)
+        write!(f, "EmbeddedGraphics error: {:?}", self.0)
     }
 }
 
@@ -122,11 +114,11 @@ macro_rules! set_gradient_stops {
     };
 }
 
-impl<'a> RenderContext for CairoRenderContext<'a> {
+impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     type Brush = Brush;
 
-    type Text = CairoText;
-    type TextLayout = CairoTextLayout;
+    type Text = EmbeddedGraphicsText;
+    type TextLayout = EmbeddedGraphicsTextLayout;
 
     type Image = ImageSurface;
 
@@ -159,7 +151,7 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
             FixedGradient::Linear(linear) => {
                 let (x0, y0) = (linear.start.x, linear.start.y);
                 let (x1, y1) = (linear.end.x, linear.end.y);
-                let lg = cairo::LinearGradient::new(x0, y0, x1, y1);
+                let lg = embedded_graphics::LinearGradient::new(x0, y0, x1, y1);
                 set_gradient_stops!(&lg, &linear.stops);
                 Ok(Brush::Linear(lg))
             }
@@ -167,7 +159,7 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
                 let (xc, yc) = (radial.center.x, radial.center.y);
                 let (xo, yo) = (radial.origin_offset.x, radial.origin_offset.y);
                 let r = radial.radius;
-                let rg = cairo::RadialGradient::new(xc + xo, yc + yo, 0.0, xc, yc, r);
+                let rg = embedded_graphics::RadialGradient::new(xc + xo, yc + yo, 0.0, xc, yc, r);
                 set_gradient_stops!(&rg, &radial.stops);
                 Ok(Brush::Radial(rg))
             }
@@ -178,7 +170,7 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
         self.set_brush(&*brush);
-        self.ctx.set_fill_rule(cairo::FillRule::Winding);
+        self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         self.ctx.fill();
     }
 
@@ -186,13 +178,13 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
         self.set_brush(&*brush);
-        self.ctx.set_fill_rule(cairo::FillRule::EvenOdd);
+        self.ctx.set_fill_rule(embedded_graphics::FillRule::EvenOdd);
         self.ctx.fill();
     }
 
     fn clip(&mut self, shape: impl Shape) {
         self.set_path(shape);
-        self.ctx.set_fill_rule(cairo::FillRule::Winding);
+        self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         self.ctx.clip();
     }
 
@@ -262,12 +254,12 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
         buf: &[u8],
         format: ImageFormat,
     ) -> Result<Self::Image, Error> {
-        let cairo_fmt = match format {
+        let embedded_graphics_fmt = match format {
             ImageFormat::Rgb => Format::Rgb24,
             ImageFormat::RgbaSeparate | ImageFormat::RgbaPremul => Format::ARgb32,
             _ => return Err(new_error(ErrorKind::NotSupported)),
         };
-        let mut image = ImageSurface::create(cairo_fmt, width as i32, height as i32).wrap()?;
+        let mut image = ImageSurface::create(embedded_graphics_fmt, width as i32, height as i32).wrap()?;
         // Confident no borrow errors because we just created it.
         let bytes_per_pixel = format.bytes_per_pixel();
         let bytes_per_row = width * bytes_per_pixel;
@@ -286,7 +278,7 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
                         }
                     }
                     ImageFormat::RgbaPremul => {
-                        // It's annoying that Cairo exposes only ARGB. Ah well. Let's
+                        // It's annoying that EmbeddedGraphics exposes only ARGB. Ah well. Let's
                         // hope that LLVM generates pretty good code for this.
                         // TODO: consider adding BgraPremul format.
                         for x in 0..width {
@@ -342,34 +334,34 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
     }
 }
 
-impl<'a> IntoBrush<CairoRenderContext<'a>> for Brush {
+impl<'a> IntoBrush<EmbeddedGraphicsRenderContext<'a>> for Brush {
     fn make_brush<'b>(
         &'b self,
-        _piet: &mut CairoRenderContext,
+        _piet: &mut EmbeddedGraphicsRenderContext,
         _bbox: impl FnOnce() -> Rect,
     ) -> std::borrow::Cow<'b, Brush> {
         Cow::Borrowed(self)
     }
 }
 
-impl CairoText {
+impl EmbeddedGraphicsText {
     /// Create a new factory that satisfies the piet `Text` trait.
     ///
     /// No state is needed for now because the current implementation is just
     /// toy text, but that will change when proper text is implemented.
-    pub fn new() -> CairoText {
-        CairoText
+    pub fn new() -> EmbeddedGraphicsText {
+        EmbeddedGraphicsText
     }
 }
 
-impl Text for CairoText {
-    type Font = CairoFont;
-    type FontBuilder = CairoFontBuilder;
-    type TextLayout = CairoTextLayout;
-    type TextLayoutBuilder = CairoTextLayoutBuilder;
+impl Text for EmbeddedGraphicsText {
+    type Font = EmbeddedGraphicsFont;
+    type FontBuilder = EmbeddedGraphicsFontBuilder;
+    type TextLayout = EmbeddedGraphicsTextLayout;
+    type TextLayoutBuilder = EmbeddedGraphicsTextLayoutBuilder;
 
     fn new_font_by_name(&mut self, name: &str, size: f64) -> Self::FontBuilder {
-        CairoFontBuilder {
+        EmbeddedGraphicsFontBuilder {
             family: name.to_owned(),
             size: size.round_into(),
             weight: FontWeight::Normal,
@@ -378,34 +370,34 @@ impl Text for CairoText {
     }
 
     fn new_text_layout(&mut self, font: &Self::Font, text: &str) -> Self::TextLayoutBuilder {
-        let text_layout = CairoTextLayout {
+        let text_layout = EmbeddedGraphicsTextLayout {
             font: font.0.clone(),
             text: text.to_owned(),
         };
-        CairoTextLayoutBuilder(text_layout)
+        EmbeddedGraphicsTextLayoutBuilder(text_layout)
     }
 }
 
-fn convert_line_cap(line_cap: LineCap) -> cairo::LineCap {
+fn convert_line_cap(line_cap: LineCap) -> embedded_graphics::LineCap {
     match line_cap {
-        LineCap::Butt => cairo::LineCap::Butt,
-        LineCap::Round => cairo::LineCap::Round,
-        LineCap::Square => cairo::LineCap::Square,
+        LineCap::Butt => embedded_graphics::LineCap::Butt,
+        LineCap::Round => embedded_graphics::LineCap::Round,
+        LineCap::Square => embedded_graphics::LineCap::Square,
     }
 }
 
-fn convert_line_join(line_join: LineJoin) -> cairo::LineJoin {
+fn convert_line_join(line_join: LineJoin) -> embedded_graphics::LineJoin {
     match line_join {
-        LineJoin::Miter => cairo::LineJoin::Miter,
-        LineJoin::Round => cairo::LineJoin::Round,
-        LineJoin::Bevel => cairo::LineJoin::Bevel,
+        LineJoin::Miter => embedded_graphics::LineJoin::Miter,
+        LineJoin::Round => embedded_graphics::LineJoin::Round,
+        LineJoin::Bevel => embedded_graphics::LineJoin::Bevel,
     }
 }
 
-impl<'a> CairoRenderContext<'a> {
+impl<'a> EmbeddedGraphicsRenderContext<'a> {
     /// Set the source pattern to the brush.
     ///
-    /// Cairo is super stateful, and we're trying to have more retained stuff.
+    /// EmbeddedGraphics is super stateful, and we're trying to have more retained stuff.
     /// This is part of the impedance matching.
     fn set_brush(&mut self, brush: &Brush) {
         match *brush {
@@ -503,8 +495,8 @@ fn scale_matrix(scale: f64) -> Matrix {
     }
 }
 
-impl FontBuilder for CairoFontBuilder {
-    type Out = CairoFont;
+impl FontBuilder for EmbeddedGraphicsFontBuilder {
+    type Out = EmbeddedGraphicsFont;
 
     fn build(self) -> Result<Self::Out, Error> {
         let font_face = FontFace::toy_create(&self.family, self.slant, self.weight);
@@ -512,21 +504,21 @@ impl FontBuilder for CairoFontBuilder {
         let ctm = scale_matrix(1.0);
         let options = FontOptions::default();
         let scaled_font = ScaledFont::new(&font_face, &font_matrix, &ctm, &options);
-        Ok(CairoFont(scaled_font))
+        Ok(EmbeddedGraphicsFont(scaled_font))
     }
 }
 
-impl Font for CairoFont {}
+impl Font for EmbeddedGraphicsFont {}
 
-impl TextLayoutBuilder for CairoTextLayoutBuilder {
-    type Out = CairoTextLayout;
+impl TextLayoutBuilder for EmbeddedGraphicsTextLayoutBuilder {
+    type Out = EmbeddedGraphicsTextLayout;
 
     fn build(self) -> Result<Self::Out, Error> {
         Ok(self.0)
     }
 }
 
-impl TextLayout for CairoTextLayout {
+impl TextLayout for EmbeddedGraphicsTextLayout {
     fn width(&self) -> f64 {
         self.font.text_extents(&self.text).x_advance
     }
@@ -672,7 +664,7 @@ mod test {
 
     #[test]
     fn test_hit_test_text_position_basic() {
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
 
         let input = "piet text!";
         let font = text_layout
@@ -760,7 +752,7 @@ mod test {
         let input = "é";
         assert_eq!(input.len(), 2);
 
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -803,7 +795,7 @@ mod test {
         assert_eq!(input.len(), 7);
         assert_eq!(input.chars().count(), 3);
 
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -839,7 +831,7 @@ mod test {
         let input = "é\u{0023}\u{FE0F}\u{20E3}1\u{1D407}"; // #️⃣,, 𝐇
         assert_eq!(input.len(), 14);
 
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -915,7 +907,7 @@ mod test {
     #[test]
     #[cfg(target_os = "linux")]
     fn test_hit_test_point_basic_0() {
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
 
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
@@ -962,7 +954,7 @@ mod test {
     #[test]
     #[cfg(target_os = "macos")]
     fn test_hit_test_point_basic_0() {
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
 
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
@@ -1008,7 +1000,7 @@ mod test {
     #[cfg(target_os = "linux")]
     // for testing that 'middle' assignment in binary search is correct
     fn test_hit_test_point_basic_1() {
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
 
         // base condition, one grapheme
         let font = text_layout
@@ -1040,7 +1032,7 @@ mod test {
     #[cfg(target_os = "macos")]
     // for testing that 'middle' assignment in binary search is correct
     fn test_hit_test_point_basic_1() {
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
 
         // base condition, one grapheme
         let font = text_layout
@@ -1078,7 +1070,7 @@ mod test {
         // 4 graphemes
         let input = "é\u{0023}\u{FE0F}\u{20E3}1\u{1D407}"; // #️⃣,, 𝐇
 
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -1127,7 +1119,7 @@ mod test {
         // 4 graphemes
         let input = "é\u{0023}\u{FE0F}\u{20E3}1\u{1D407}"; // #️⃣,, 𝐇
 
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -1177,7 +1169,7 @@ mod test {
         // This corresponds to the char 'y' in the input.
         let input = "tßßypi";
 
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -1206,7 +1198,7 @@ mod test {
         // This corresponds to the char 'y' in the input.
         let input = "tßßypi";
 
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
