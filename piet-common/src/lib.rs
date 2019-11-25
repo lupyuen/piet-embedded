@@ -31,7 +31,7 @@ pub use piet::kurbo;
 
 #[cfg(any(
     feature = "cairo",
-    not(any(target_arch = "wasm32", target_os = "windows", feature = "direct2d"))
+    not(any(target_arch = "wasm32", target_os = "windows", feature = "direct2d", feature = "embedded-graphics"))
 ))]
 #[path = "cairo_back.rs"]
 mod backend;

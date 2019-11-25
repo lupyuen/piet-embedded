@@ -52,6 +52,7 @@ pub type Image = ImageSurface;
 /// In the case of EmbeddedGraphics, being a software renderer, no state is needed.
 pub struct Device;
 
+/*
 /// A struct provides a `RenderContext` and then can have its bitmap extracted.
 pub struct BitmapTarget<'a> {
     surface: ImageSurface,
@@ -122,3 +123,4 @@ impl<'a> BitmapTarget<'a> {
         Ok(raw_data)
     }
 }
+*/

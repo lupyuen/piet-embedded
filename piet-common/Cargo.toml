@@ -12,7 +12,7 @@ keywords = ["graphics", "2d"]
 d2d = ["piet-direct2d"]
 cairo = ["piet-cairo", "cairo-rs"]
 web = ["piet-web"]
-embedded-graphics = ["piet-embedded-graphics"]
+embedded = ["piet-embedded-graphics"]
 
 [dependencies]
 piet = { version = "0.0.7", path = "../piet" }

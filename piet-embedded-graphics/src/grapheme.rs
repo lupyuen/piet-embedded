@@ -1,9 +1,9 @@
 use piet::{HitTestPoint, TextLayout};
 use unicode_segmentation::UnicodeSegmentation;
 
-use crate::CairoTextLayout;
+use crate::EmbeddedGraphicsTextLayout;
 
-impl CairoTextLayout {
+impl EmbeddedGraphicsTextLayout {
     pub(crate) fn get_grapheme_boundaries(
         &self,
         grapheme_position: usize,
@@ -68,7 +68,7 @@ mod test {
 
     #[test]
     fn test_grapheme_boundaries() {
-        let mut text_layout = CairoText::new();
+        let mut text_layout = EmbeddedGraphicsText::new();
 
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)

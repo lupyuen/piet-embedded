@@ -247,6 +247,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         self.ctx.transform(affine_to_matrix(transform));
     }
 
+/*    
     fn make_image(
         &mut self,
         width: usize,
@@ -332,6 +333,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
             Ok(())
         });
     }
+*/
 }
 
 impl<'a> IntoBrush<EmbeddedGraphicsRenderContext<'a>> for Brush {
