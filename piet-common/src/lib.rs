@@ -44,7 +44,7 @@ mod backend;
 #[path = "web_back.rs"]
 mod backend;
 
-#[cfg(any(feature = "embedded-graphics", target_arch = "arm"))]
+#[cfg(any(feature = "embedded-graphics", all(target_arch = "arm", target_os = "none")))]
 #[path = "embedded_graphics_back.rs"]
 mod backend;
 
