@@ -1,12 +1,12 @@
 [package]
-name = "piet"
+name = "piet-embedded"
 version = "0.0.7"
 authors = ["Raph Levien <raph.levien@gmail.com>"]
-description = "An abstraction for 2D graphics."
+description = "An abstraction for 2D graphics. Experimental embedded version."
 license = "MIT/Apache-2.0"
-repository = "https://github.com/linebender/piet"
+repository = "https://github.com/lupyuen/piet-embedded"
 edition = "2018"
-keywords = ["graphics", "2d"]
+keywords = ["graphics", "2d", "no-std"]
 categories = ["rendering::graphics-api"]
 
 [dependencies]
