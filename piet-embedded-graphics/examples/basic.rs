@@ -1,5 +1,6 @@
 //! Basic example of rendering on embedded-graphics.
 
+#![no_std] ////
 ////use cairo::{Context, Format, ImageSurface};
 
 use piet::RenderContext;

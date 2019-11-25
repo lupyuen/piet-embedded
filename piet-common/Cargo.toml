@@ -12,6 +12,7 @@ keywords = ["graphics", "2d"]
 d2d = ["piet-direct2d"]
 cairo = ["piet-cairo", "cairo-rs"]
 web = ["piet-web"]
+embedded-graphics = ["piet-embedded-graphics"]
 
 [dependencies]
 piet = { version = "0.0.7", path = "../piet" }
@@ -19,6 +20,8 @@ piet-cairo = { version = "0.0.7", path = "../piet-cairo", optional = true }
 piet-direct2d = { version = "0.0.7", path = "../piet-direct2d", optional = true }
 piet-web = { version = "0.0.7", path = "../piet-web", optional = true }
 cairo-rs = { version = "0.7.1", default_features = false, optional = true}
+piet-embedded-graphics = { version = "0.0.1", path = "../piet-embedded-graphics", optional = true }
+embedded-graphics = { version = "0.5.2", optional = true }
 
 [target.'cfg(not(any(target_arch="wasm32", target_os="windows")))'.dependencies]
 piet-cairo = { version = "0.0.7", path = "../piet-cairo" }
@@ -33,6 +36,10 @@ direct3d11 = "0.1.7"
 
 [target.'cfg(target_arch="wasm32")'.dependencies]
 piet-web = { version = "0.0.7", path = "../piet-web" }
+
+[target.'cfg(target_arch="arm")'.dependencies]
+piet-embedded-graphics = { version = "0.0.1", path = "../piet-embedded-graphics" }
+embedded-graphics = "0.5.2"
 
 [dev-dependencies]
 image = "0.20.1"
