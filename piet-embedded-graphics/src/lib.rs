@@ -1,5 +1,6 @@
 //! The embedded-graphics backend for the Piet 2D graphics abstraction.
 
+#![no_std] ////
 mod grapheme;
 
 use piet::kurbo::{Affine, PathEl, Point, QuadBez, Rect, Shape};

@@ -24,6 +24,7 @@
 //! [kurbo]: https://crates.io/crates/kurbo
 //! [piet-cairo]: https://crates.io/crates/piet-cairo
 
+#![no_std] ////
 pub use piet::*;
 
 #[doc(hidden)]

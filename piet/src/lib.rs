@@ -1,5 +1,6 @@
 //! A 2D graphics abstraction.
 
+#![no_std] ////
 pub use kurbo;
 
 mod color;
