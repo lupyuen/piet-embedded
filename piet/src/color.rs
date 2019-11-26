@@ -108,7 +108,7 @@ impl Color {
         fn f_inv(t: f64) -> f64 {
             let d = 6. / 29.;
             if t > d {
-                libm::powi(t, 3) ////
+                libm::pow(t, 3.) ////
                 ////t.powi(3)
             } else {
                 3. * d * d * (t - 4. / 29.)
@@ -117,8 +117,8 @@ impl Color {
         let th = h.into() * (core::f64::consts::PI / 180.); ////
         ////let th = h.into() * (std::f64::consts::PI / 180.);
         let c = c.into();
-        let a = c * th.cos();
-        let b = c * th.sin();
+        let a = c * libm::cos(th);
+        let b = c * libm::sin(th);
         let L = l.into();
         let ll = (L + 16.) * (1. / 116.);
         // Produce raw XYZ values
@@ -145,7 +145,7 @@ impl Color {
             if u <= 0.0031308 {
                 12.92 * u
             } else {
-                1.055 * u.powf(1. / 2.4) - 0.055
+                1.055 * libm::pow(u, 1. / 2.4) - 0.055
             }
         }
         Color::rgb(gamma(r_lin), gamma(g_lin), gamma(b_lin))
@@ -162,7 +162,7 @@ impl Color {
     ///
     /// The `a` value represents alpha in the range 0.0 to 1.0.
     pub fn with_alpha(self, a: impl Into<f64>) -> Color {
-        let a = (a.into().max(0.0).min(1.0) * 255.0).round() as u32;
+        let a = libm::round(a.into().max(0.0).min(1.0) * 255.0) as u32;
         Color::from_rgba32_u32((self.as_rgba_u32() & !0xff) | a)
     }
 
