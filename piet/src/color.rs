@@ -1,6 +1,6 @@
 //! A simple representation of color
 
-use std::fmt::{Debug, Formatter};
+////use std::fmt::{Debug, Formatter};
 
 /// A datatype representing color.
 ///
@@ -12,11 +12,13 @@ pub enum Color {
     Rgba32(u32),
 }
 
+/* ////
 impl Debug for Color {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "#{:08x}", self.as_rgba_u32())
     }
 }
+*/ ////
 
 impl Color {
     /// Create a color from 8 bit per sample RGB values.

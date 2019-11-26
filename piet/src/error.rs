@@ -1,6 +1,6 @@
 //! The common error type for piet operations.
 
-use std::fmt;
+////use std::fmt;
 
 /// An error that can occur while rendering 2D graphics.
 #[derive(Debug)]
@@ -21,6 +21,7 @@ pub fn new_error(kind: ErrorKind) -> Error {
     Error(Box::new(kind))
 }
 
+/* ////
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self.0 {
@@ -35,6 +36,7 @@ impl fmt::Display for Error {
         }
     }
 }
+*/ ////
 
 impl std::error::Error for Error {}
 
