@@ -44,7 +44,7 @@ const MAX_GRADIENT_STOPS: usize = 3; //// Max number of gradient stops supported
 /// of the item being drawn; for these, use [`LinearGradient`] instead.
 ///
 /// [`LinearGradient`]: struct.LinearGradient.html
-#[derive(Clone, Copy)] ////
+#[derive(Clone)] ////
 ////#[derive(Debug, Clone)]
 pub struct FixedLinearGradient {
     /// The start point (corresponding to pos 0.0).
@@ -65,7 +65,7 @@ pub struct FixedLinearGradient {
 /// of the item being drawn; for these, use [`RadialGradient`] instead.
 ///
 /// [`RadialGradient`]: struct.RadialGradient.html
-#[derive(Clone, Copy)] ////
+#[derive(Clone)] ////
 ////#[derive(Debug, Clone)]
 pub struct FixedRadialGradient {
     /// The center.
@@ -90,7 +90,7 @@ pub struct FixedRadialGradient {
 ///
 /// [`FixedLinearGradient`]: struct.FixedLinearGradient.html
 /// [`FixedRadialGradient`]: struct.FixedRadialGradient.html
-#[derive(Clone, Copy)] ////
+#[derive(Clone)] ////
 ////#[derive(Debug, Clone)]
 pub enum FixedGradient {
     /// A linear gradient.
@@ -434,7 +434,7 @@ impl<P: RenderContext> IntoBrush<P> for FixedGradient {
     ////fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
         // Also, at some point we might want to be smarter about the extra clone here.
         ////Bow::Owned(
-            piet.gradient(*self)
+            piet.gradient(self.clone())
             ////piet.gradient(self.to_owned())
                 .expect("error creating gradient")
         ////)
