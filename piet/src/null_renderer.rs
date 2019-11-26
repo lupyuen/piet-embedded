@@ -17,7 +17,8 @@ use crate::{
 #[doc(hidden)]
 pub struct NullRenderContext(NullText);
 
-#[derive(Clone)]
+#[derive(Clone, Copy)] ////
+////#[derive(Clone)]
 #[doc(hidden)]
 pub struct NullBrush;
 #[doc(hidden)]

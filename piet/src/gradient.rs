@@ -35,7 +35,7 @@ use crate::{IntoBrush, RenderContext};
 use crate::Color;
 
 type GradientStopArray = [GradientStop; MAX_GRADIENT_STOPS];
-const MAX_GRADIENT_STOPS: usize = 5; //// Max number of gradient stops supported. Should be 2 or more.
+const MAX_GRADIENT_STOPS: usize = 3; //// Max number of gradient stops supported. Should be 2 or more.
 
 /// Specification of a linear gradient.
 ///
@@ -44,7 +44,7 @@ const MAX_GRADIENT_STOPS: usize = 5; //// Max number of gradient stops supported
 /// of the item being drawn; for these, use [`LinearGradient`] instead.
 ///
 /// [`LinearGradient`]: struct.LinearGradient.html
-#[derive(Clone)] ////
+#[derive(Clone, Copy)] ////
 ////#[derive(Debug, Clone)]
 pub struct FixedLinearGradient {
     /// The start point (corresponding to pos 0.0).
@@ -65,7 +65,7 @@ pub struct FixedLinearGradient {
 /// of the item being drawn; for these, use [`RadialGradient`] instead.
 ///
 /// [`RadialGradient`]: struct.RadialGradient.html
-#[derive(Clone)] ////
+#[derive(Clone, Copy)] ////
 ////#[derive(Debug, Clone)]
 pub struct FixedRadialGradient {
     /// The center.
@@ -90,7 +90,7 @@ pub struct FixedRadialGradient {
 ///
 /// [`FixedLinearGradient`]: struct.FixedLinearGradient.html
 /// [`FixedRadialGradient`]: struct.FixedRadialGradient.html
-#[derive(Clone)] ////
+#[derive(Clone, Copy)] ////
 ////#[derive(Debug, Clone)]
 pub enum FixedGradient {
     /// A linear gradient.
@@ -100,7 +100,7 @@ pub enum FixedGradient {
 }
 
 /// Specification of a gradient stop.
-#[derive(Clone)]
+#[derive(Clone, Copy)] ////
 ////#[derive(Debug, Clone)]
 pub struct GradientStop {
     /// The coordinate of the stop.
@@ -173,7 +173,7 @@ pub struct RadialGradient {
 }
 
 /// Mappings from the unit square into a non-square rectangle.
-#[derive(Clone)] ////
+#[derive(Clone, Copy)] ////
 ////#[derive(Debug, Clone)]
 pub enum ScaleMode {
     /// The unit 1.0 is mapped to the smaller of width & height, but the mapped

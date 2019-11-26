@@ -1,6 +1,6 @@
 //! The main render context trait.
 
-////  TODO: Implement COW
+////  TODO: Implement COW. Brushes are currently copied and passed by value.
 ////use std::borrow::Cow;
 
 use kurbo::{Affine, Point, Rect, Shape};

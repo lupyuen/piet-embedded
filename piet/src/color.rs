@@ -7,7 +7,8 @@
 /// Currently this is only a 32 bit RGBA value, but it will likely
 /// extend to some form of wide-gamut colorspace, and in the meantime
 /// is useful for giving programs proper type.
-#[derive(Clone)]
+#[derive(Clone, Copy)] ////
+////#[derive(Clone)]
 pub enum Color {
     Rgba32(u32),
 }
