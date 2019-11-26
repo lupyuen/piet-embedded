@@ -2,21 +2,21 @@
 
 members = [
     "piet",
-    "piet-cairo",
+    #### "piet-cairo",
     "piet-common",
-    "piet-direct2d",
-    "piet-test",
-    "piet-web",
-    "piet-web/examples/basic",
+    #### "piet-direct2d",
+    #### "piet-test",
+    #### "piet-web",
+    #### "piet-web/examples/basic",
     "piet-embedded-graphics"
 ]
 
 default-members = [
     "piet",
-    "piet-cairo",
+    #### "piet-cairo",
     "piet-common",
-    "piet-test",
-    "piet-web",
-    "piet-web/examples/basic",
+    #### "piet-test",
+    #### "piet-web",
+    #### "piet-web/examples/basic",
     "piet-embedded-graphics"
 ]
