@@ -24,7 +24,7 @@
 //! [`FixedRadialGradient`]: struct.FixedRadialGradient.html
 //! [unit square]: https://en.wikipedia.org/wiki/Unit_square
 
-use boow::Bow; ////
+////  TODO: Implement COW
 ////use std::borrow::Cow;
 use arrayvec::ArrayVec;  ////
 
@@ -430,31 +430,36 @@ impl From<FixedRadialGradient> for FixedGradient {
 }
 
 impl<P: RenderContext> IntoBrush<P> for FixedGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
+    fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+    ////fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
         // Also, at some point we might want to be smarter about the extra clone here.
-        Bow::Owned( ////
+        ////Bow::Owned(
             piet.gradient(*self)
             ////piet.gradient(self.to_owned())
-                .expect("error creating gradient"),
-        )
+                .expect("error creating gradient")
+        ////)
     }
 }
 
 impl<P: RenderContext> IntoBrush<P> for LinearGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
+    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+    ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
         let rect = bbox();
         let gradient = self.resolve(rect);
         // Perhaps the make_brush method should be fallible instead of panicking.
-        Bow::Owned(piet.gradient(gradient).expect("error creating gradient")) ////
+        piet.gradient(gradient).expect("error creating gradient") ////
+        ////Bow::Owned(piet.gradient(gradient).expect("error creating gradient"))
     }
 }
 
 impl<P: RenderContext> IntoBrush<P> for RadialGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
+    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+    ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
         let rect = bbox();
         let gradient = self.resolve(rect);
         // Perhaps the make_brush method should be fallible instead of panicking.
-        Bow::Owned(piet.gradient(gradient).expect("error creating gradient")) ////
+        piet.gradient(gradient).expect("error creating gradient") ////
+        ////Bow::Owned(piet.gradient(gradient).expect("error creating gradient"))
     }
 }
 

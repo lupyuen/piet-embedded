@@ -2,12 +2,12 @@
 
 ////use std::fmt;
 
-pub struct Error {} ////
-/*
 /// An error that can occur while rendering 2D graphics.
 #[derive(Debug)]
-pub struct Error(Box<ErrorKind>);
+pub struct Error {} ////
+////pub struct Error(Box<ErrorKind>);
 
+/*
 #[derive(Debug)]
 pub enum ErrorKind {
     InvalidInput,

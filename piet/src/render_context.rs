@@ -1,6 +1,6 @@
 //! The main render context trait.
 
-use boow::Bow; ////
+////  TODO: Implement COW
 ////use std::borrow::Cow;
 
 use kurbo::{Affine, Point, Rect, Shape};
@@ -197,12 +197,15 @@ pub trait IntoBrush<P: RenderContext>
 where
     P: ?Sized,
 {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush>; ////
+    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush; ////
+    ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush>;
 }
 
 impl<P: RenderContext> IntoBrush<P> for Color {
-    fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
-        Bow::Owned(piet.solid_brush(self.to_owned())) ////
+    fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+    ////fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
+        piet.solid_brush(*self) ////
+        ////Bow::Owned(piet.solid_brush(self.to_owned()))
     }
 }
 
@@ -245,7 +248,8 @@ pub enum PaintBrush {
 }
 
 impl<P: RenderContext> IntoBrush<P> for PaintBrush {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
+    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+    ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
         match self {
             PaintBrush::Color(color) => color.make_brush(piet, bbox),
             PaintBrush::Linear(linear) => linear.make_brush(piet, bbox),

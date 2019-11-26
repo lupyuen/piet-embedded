@@ -1,6 +1,6 @@
 //! A render context that does nothing.
 
-use boow::Bow; ////
+////  TODO: Implement COW
 ////use std::borrow::Cow;
 
 use kurbo::{Affine, Point, Rect, Shape};
@@ -172,7 +172,9 @@ impl IntoBrush<NullRenderContext> for NullBrush {
         &'b self,
         _piet: &mut NullRenderContext,
         _bbox: impl FnOnce() -> Rect,
-    ) -> Bow<'b, NullBrush> { ////
-        Bow::Borrowed(self) ////
+    ) -> NullBrush { ////
+    ////) -> Bow<'b, NullBrush> {
+        *self ////
+        ////Bow::Borrowed(self)
     }
 }
