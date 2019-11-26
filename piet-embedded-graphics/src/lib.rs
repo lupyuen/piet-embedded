@@ -66,6 +66,7 @@ pub struct EmbeddedGraphicsTextLayoutBuilder(EmbeddedGraphicsTextLayout);
 #[derive(Debug)]
 struct WrappedStatus(Status);
 
+/* ////
 impl fmt::Display for WrappedStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "EmbeddedGraphics error: {:?}", self.0)
@@ -97,6 +98,7 @@ impl<T> WrapError<T> for Result<T, Status> {
         })
     }
 }
+*/ ////
 
 // we call this with different types of gradient that have `add_color_stop_rgba` fns,
 // and there's no trait for this behaviour so we use a macro. ¯\_(ツ)_/¯
@@ -248,7 +250,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         self.ctx.transform(affine_to_matrix(transform));
     }
 
-/*    
+/* ////   
     fn make_image(
         &mut self,
         width: usize,
@@ -334,7 +336,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
             Ok(())
         });
     }
-*/
+*/ ////
 }
 
 impl<'a> IntoBrush<EmbeddedGraphicsRenderContext<'a>> for Brush {
