@@ -1,11 +1,16 @@
 //! Options for drawing paths.
 
+use arrayvec::ArrayVec;  ////
+type DashArray = [f64; MAX_DASH];
+const MAX_DASH: usize = 5; //// Max number of dashes supported
+
 /// Options for drawing stroked lines.
 #[derive(Clone, PartialEq, Debug)]
 pub struct StrokeStyle {
     pub line_join: Option<LineJoin>,
     pub line_cap: Option<LineCap>,
-    pub dash: Option<(Vec<f64>, f64)>,
+    pub dash: Option<(ArrayVec<DashArray>, f64)>, ////
+    ////pub dash: Option<(Vec<f64>, f64)>,
     pub miter_limit: Option<f64>,
 }
 
@@ -43,7 +48,8 @@ impl StrokeStyle {
         self.line_cap = Some(line_cap);
     }
 
-    pub fn set_dash(&mut self, dashes: Vec<f64>, offset: f64) {
+    pub fn set_dash(&mut self, dashes: ArrayVec<DashArray>, offset: f64) { ////
+    ////pub fn set_dash(&mut self, dashes: Vec<f64>, offset: f64) {
         self.dash = Some((dashes, offset));
     }
 

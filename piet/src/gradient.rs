@@ -26,12 +26,16 @@
 
 use boow::Bow; ////
 ////use std::borrow::Cow;
+use arrayvec::ArrayVec;  ////
 
 use kurbo::{Point, Rect, Size, Vec2};
 
 use crate::{IntoBrush, RenderContext};
 
 use crate::Color;
+
+type GradientStopArray = [GradientStop; MAX_GRADIENT_STOPS];
+const MAX_GRADIENT_STOPS: usize = 5; //// Max number of gradient stops supported. Should be 2 or more.
 
 /// Specification of a linear gradient.
 ///
@@ -49,7 +53,8 @@ pub struct FixedLinearGradient {
     /// The stops.
     ///
     /// There must be at least two for the gradient to be valid.
-    pub stops: Vec<GradientStop>,
+    pub stops: ArrayVec::<GradientStopArray>, ////
+    ////pub stops: Vec<GradientStop>,
 }
 
 /// Specification of a radial gradient in image-space.
@@ -70,7 +75,8 @@ pub struct FixedRadialGradient {
     /// The circle with this radius from the center corresponds to pos 1.0.
     pub radius: f64,
     /// The stops (see similar field in [`LinearGradient`](struct.LinearGradient.html)).
-    pub stops: Vec<GradientStop>,
+    pub stops: ArrayVec::<GradientStopArray>, ////
+    ////pub stops: Vec<GradientStop>,
 }
 
 /// Any fixed gradient.
@@ -101,7 +107,8 @@ pub struct GradientStop {
 
 /// A flexible, ergonomic way to describe gradient stops.
 pub trait GradientStops {
-    fn to_vec(self) -> Vec<GradientStop>;
+    fn to_vec(self) -> ArrayVec::<GradientStopArray>; ////
+    ////fn to_vec(self) -> Vec<GradientStop>;
 }
 
 /// A description of a linear gradient in the unit rect, which can be resolved
@@ -118,7 +125,8 @@ pub trait GradientStops {
 pub struct LinearGradient {
     start: UnitPoint,
     end: UnitPoint,
-    stops: Vec<GradientStop>,
+    stops: ArrayVec::<GradientStopArray>, ////
+    ////stops: Vec<GradientStop>,
 }
 
 /// A description of a radial gradient in the unit rect, which can be resolved
@@ -153,7 +161,8 @@ pub struct RadialGradient {
     center: UnitPoint,
     origin: UnitPoint,
     radius: f64,
-    stops: Vec<GradientStop>,
+    stops: ArrayVec::<GradientStopArray>, ////
+    ////stops: Vec<GradientStop>,
     scale_mode: ScaleMode,
 }
 
@@ -175,23 +184,28 @@ pub struct UnitPoint {
     v: f64,
 }
 
-impl GradientStops for Vec<GradientStop> {
-    fn to_vec(self) -> Vec<GradientStop> {
+impl GradientStops for ArrayVec::<GradientStopArray> {
+////impl GradientStops for Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         self
     }
 }
 
 impl<'a> GradientStops for &'a [GradientStop] {
-    fn to_vec(self) -> Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         self.to_owned()
     }
 }
 
 // Generate equally-spaced stops.
 impl<'a> GradientStops for &'a [Color] {
-    fn to_vec(self) -> Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         if self.is_empty() {
-            Vec::new()
+            ArrayVec::<GradientStopArray>::new()
+            ////Vec::new()
         } else {
             let denom = (self.len() - 1).max(1) as f32;
             self.iter()
@@ -206,35 +220,40 @@ impl<'a> GradientStops for &'a [Color] {
 }
 
 impl<'a> GradientStops for (Color, Color) {
-    fn to_vec(self) -> Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         let stops: &[Color] = &[self.0, self.1];
         GradientStops::to_vec(stops)
     }
 }
 
 impl<'a> GradientStops for (Color, Color, Color) {
-    fn to_vec(self) -> Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         let stops: &[Color] = &[self.0, self.1, self.2];
         GradientStops::to_vec(stops)
     }
 }
 
 impl<'a> GradientStops for (Color, Color, Color, Color) {
-    fn to_vec(self) -> Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         let stops: &[Color] = &[self.0, self.1, self.2, self.3];
         GradientStops::to_vec(stops)
     }
 }
 
 impl<'a> GradientStops for (Color, Color, Color, Color, Color) {
-    fn to_vec(self) -> Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         let stops: &[Color] = &[self.0, self.1, self.2, self.3, self.4];
         GradientStops::to_vec(stops)
     }
 }
 
 impl<'a> GradientStops for (Color, Color, Color, Color, Color, Color) {
-    fn to_vec(self) -> Vec<GradientStop> {
+    fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
+    ////fn to_vec(self) -> Vec<GradientStop> {
         let stops: &[Color] = &[self.0, self.1, self.2, self.3, self.4, self.5];
         GradientStops::to_vec(stops)
     }
