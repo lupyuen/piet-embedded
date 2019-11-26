@@ -30,9 +30,11 @@ pub use piet::*;
 #[doc(hidden)]
 pub use piet::kurbo;
 
+//// Sync with piet-common/Cargo.toml
 #[cfg(any(
     feature = "cairo",
-    not(any(target_arch = "wasm32", target_os = "windows", feature = "direct2d", feature = "embedded-graphics"))
+    not(any(target_arch = "wasm32", target_os = "windows", feature = "direct2d", 
+        target_os = "none", feature = "embedded")) ////
 ))]
 #[path = "cairo_back.rs"]
 mod backend;
@@ -45,8 +47,8 @@ mod backend;
 #[path = "web_back.rs"]
 mod backend;
 
-#[cfg(any(feature = "embedded-graphics", all(target_arch = "arm", target_os = "none")))]
-#[path = "embedded_graphics_back.rs"]
-mod backend;
+#[cfg(any(feature = "embedded", all(target_arch = "arm", target_os = "none")))] ////
+#[path = "embedded_graphics_back.rs"] ////
+mod backend; ////
 
 pub use backend::*;

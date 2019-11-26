@@ -6,13 +6,13 @@ description = "Selection of a single preferred back-end for piet"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/linebender/piet"
 edition = "2018"
-keywords = ["graphics", "2d"]
+keywords = ["graphics", "2d", "no_std"]
 
 [features]
 #d2d = ["piet-direct2d"]
 #cairo = ["piet-cairo", "cairo-rs"]
 #web = ["piet-web"]
-embedded = ["piet-embedded-graphics"]
+embedded = ["piet-embedded-graphics", "embedded-graphics"]
 
 [dependencies]
 piet = { version = "0.0.7", path = "../piet" }
@@ -23,7 +23,8 @@ piet = { version = "0.0.7", path = "../piet" }
 piet-embedded-graphics = { version = "0.0.1", path = "../piet-embedded-graphics", optional = true }
 embedded-graphics = { version = "0.5.2", optional = true }
 
-[target.'cfg(not(any(target_arch="wasm32", target_os="windows")))'.dependencies]
+#### Sync with piet-common/src/lib.rs
+[target.'cfg(not(any(target_arch="wasm32", target_os="windows", target_os="none")))'.dependencies] ####
 #piet-cairo = { version = "0.0.7", path = "../piet-cairo" }
 #cairo-rs = { version = "0.7.1", default_features = false}
 
@@ -37,9 +38,9 @@ embedded-graphics = { version = "0.5.2", optional = true }
 [target.'cfg(target_arch="wasm32")'.dependencies]
 #piet-web = { version = "0.0.7", path = "../piet-web" }
 
-[target.'cfg(all(target_arch = "arm", target_os = "none"))'.dependencies]
-piet-embedded-graphics = { version = "0.0.1", path = "../piet-embedded-graphics" }
-embedded-graphics = "0.5.2"
+[target.'cfg(all(target_arch = "arm", target_os = "none"))'.dependencies] ####
+piet-embedded-graphics = { version = "0.0.1", path = "../piet-embedded-graphics" } ####
+embedded-graphics = "0.5.2" ####
 
 [dev-dependencies]
 #image = "0.20.1"

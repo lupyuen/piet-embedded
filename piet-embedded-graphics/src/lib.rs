@@ -11,6 +11,13 @@ use piet::{
     LineJoin, RenderContext, RoundInto, StrokeStyle, Text, TextLayout, TextLayoutBuilder,
 };
 
+/*
+use cairo::{
+    BorrowError, Context, Filter, FontFace, FontOptions, FontSlant, FontWeight, Format,
+    ImageSurface, Matrix, ScaledFont, Status, SurfacePattern,
+};
+*/
+
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::grapheme::point_x_in_grapheme;
