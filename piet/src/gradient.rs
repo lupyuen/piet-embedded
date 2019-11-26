@@ -24,7 +24,8 @@
 //! [`FixedRadialGradient`]: struct.FixedRadialGradient.html
 //! [unit square]: https://en.wikipedia.org/wiki/Unit_square
 
-use std::borrow::Cow;
+use boow::Bow; ////
+////use std::borrow::Cow;
 
 use kurbo::{Point, Rect, Size, Vec2};
 
@@ -400,9 +401,9 @@ impl From<FixedRadialGradient> for FixedGradient {
 }
 
 impl<P: RenderContext> IntoBrush<P> for FixedGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Cow<'a, P::Brush> {
+    fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
         // Also, at some point we might want to be smarter about the extra clone here.
-        Cow::Owned(
+        Bow::Owned( ////
             piet.gradient(self.to_owned())
                 .expect("error creating gradient"),
         )
@@ -410,20 +411,20 @@ impl<P: RenderContext> IntoBrush<P> for FixedGradient {
 }
 
 impl<P: RenderContext> IntoBrush<P> for LinearGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Cow<'a, P::Brush> {
+    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
         let rect = bbox();
         let gradient = self.resolve(rect);
         // Perhaps the make_brush method should be fallible instead of panicking.
-        Cow::Owned(piet.gradient(gradient).expect("error creating gradient"))
+        Bow::Owned(piet.gradient(gradient).expect("error creating gradient")) ////
     }
 }
 
 impl<P: RenderContext> IntoBrush<P> for RadialGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Cow<'a, P::Brush> {
+    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
         let rect = bbox();
         let gradient = self.resolve(rect);
         // Perhaps the make_brush method should be fallible instead of panicking.
-        Cow::Owned(piet.gradient(gradient).expect("error creating gradient"))
+        Bow::Owned(piet.gradient(gradient).expect("error creating gradient")) ////
     }
 }
 
