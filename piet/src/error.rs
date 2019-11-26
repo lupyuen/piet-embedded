@@ -2,6 +2,8 @@
 
 ////use std::fmt;
 
+pub struct Error {} ////
+/*
 /// An error that can occur while rendering 2D graphics.
 #[derive(Debug)]
 pub struct Error(Box<ErrorKind>);
@@ -20,6 +22,7 @@ pub enum ErrorKind {
 pub fn new_error(kind: ErrorKind) -> Error {
     Error(Box::new(kind))
 }
+*/
 
 /* ////
 impl fmt::Display for Error {
@@ -38,6 +41,7 @@ impl fmt::Display for Error {
 }
 */ ////
 
+/*
 impl std::error::Error for Error {}
 
 impl From<Box<dyn std::error::Error>> for Error {
@@ -45,3 +49,4 @@ impl From<Box<dyn std::error::Error>> for Error {
         new_error(ErrorKind::BackendError(e))
     }
 }
+*/

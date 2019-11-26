@@ -66,10 +66,10 @@ impl Color {
     /// The interpretation is the same as rgba32, and no greater precision is
     /// (currently) assumed.
     pub fn rgba<F: Into<f64>>(r: F, g: F, b: F, a: F) -> Color {
-        let r = (r.into().max(0.0).min(1.0) * 255.0).round() as u32;
-        let g = (g.into().max(0.0).min(1.0) * 255.0).round() as u32;
-        let b = (b.into().max(0.0).min(1.0) * 255.0).round() as u32;
-        let a = (a.into().max(0.0).min(1.0) * 255.0).round() as u32;
+        let r = libm::round(r.into().max(0.0).min(1.0) * 255.0) as u32; ////
+        let g = libm::round(g.into().max(0.0).min(1.0) * 255.0) as u32; ////
+        let b = libm::round(b.into().max(0.0).min(1.0) * 255.0) as u32; ////
+        let a = libm::round(a.into().max(0.0).min(1.0) * 255.0) as u32; ////
         Color::from_rgba32_u32((r << 24) | (g << 16) | (b << 8) | a)
     }
 
@@ -78,9 +78,9 @@ impl Color {
     /// The interpretation is the same as rgb8, and no greater precision is
     /// (currently) assumed.
     pub fn rgb<F: Into<f64>>(r: F, g: F, b: F) -> Color {
-        let r = (r.into().max(0.0).min(1.0) * 255.0).round() as u32;
-        let g = (g.into().max(0.0).min(1.0) * 255.0).round() as u32;
-        let b = (b.into().max(0.0).min(1.0) * 255.0).round() as u32;
+        let r = libm::round(r.into().max(0.0).min(1.0) * 255.0) as u32; ////
+        let g = libm::round(g.into().max(0.0).min(1.0) * 255.0) as u32; ////
+        let b = libm::round(b.into().max(0.0).min(1.0) * 255.0) as u32; ////
         Color::from_rgba32_u32((r << 24) | (g << 16) | (b << 8) | 0xff)
     }
 
@@ -108,12 +108,14 @@ impl Color {
         fn f_inv(t: f64) -> f64 {
             let d = 6. / 29.;
             if t > d {
-                t.powi(3)
+                libm::powi(t, 3) ////
+                ////t.powi(3)
             } else {
                 3. * d * d * (t - 4. / 29.)
             }
         }
-        let th = h.into() * (std::f64::consts::PI / 180.);
+        let th = h.into() * (core::f64::consts::PI / 180.); ////
+        ////let th = h.into() * (std::f64::consts::PI / 180.);
         let c = c.into();
         let a = c * th.cos();
         let b = c * th.sin();
