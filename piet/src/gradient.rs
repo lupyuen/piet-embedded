@@ -44,7 +44,8 @@ const MAX_GRADIENT_STOPS: usize = 5; //// Max number of gradient stops supported
 /// of the item being drawn; for these, use [`LinearGradient`] instead.
 ///
 /// [`LinearGradient`]: struct.LinearGradient.html
-#[derive(Debug, Clone)]
+#[derive(Clone)] ////
+////#[derive(Debug, Clone)]
 pub struct FixedLinearGradient {
     /// The start point (corresponding to pos 0.0).
     pub start: Point,
@@ -64,7 +65,8 @@ pub struct FixedLinearGradient {
 /// of the item being drawn; for these, use [`RadialGradient`] instead.
 ///
 /// [`RadialGradient`]: struct.RadialGradient.html
-#[derive(Debug, Clone)]
+#[derive(Clone)] ////
+////#[derive(Debug, Clone)]
 pub struct FixedRadialGradient {
     /// The center.
     pub center: Point,
@@ -88,7 +90,8 @@ pub struct FixedRadialGradient {
 ///
 /// [`FixedLinearGradient`]: struct.FixedLinearGradient.html
 /// [`FixedRadialGradient`]: struct.FixedRadialGradient.html
-#[derive(Debug, Clone)]
+#[derive(Clone)] ////
+////#[derive(Debug, Clone)]
 pub enum FixedGradient {
     /// A linear gradient.
     Linear(FixedLinearGradient),
@@ -97,7 +100,8 @@ pub enum FixedGradient {
 }
 
 /// Specification of a gradient stop.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
+////#[derive(Debug, Clone)]
 pub struct GradientStop {
     /// The coordinate of the stop.
     pub pos: f32,
@@ -121,7 +125,8 @@ pub trait GradientStops {
 ///
 /// [`UnitPoint`]: struct.UnitPoint.html
 /// [`FixedLinearGradient`]: struct.FixedLinearGradient.html
-#[derive(Debug, Clone)]
+#[derive(Clone)] ////
+////#[derive(Debug, Clone)]
 pub struct LinearGradient {
     start: UnitPoint,
     end: UnitPoint,
@@ -156,7 +161,8 @@ pub struct LinearGradient {
 /// [`with_center`]: struct.RadialGradient.html#method.with_center
 /// [`with_origin`]: struct.RadialGradient.html#method.with_origin
 /// [`with_scale_mode`]: struct.RadialGradient.html#method.with_scale_mode
-#[derive(Debug, Clone)]
+#[derive(Clone)] ////
+////#[derive(Debug, Clone)]
 pub struct RadialGradient {
     center: UnitPoint,
     origin: UnitPoint,
@@ -167,7 +173,8 @@ pub struct RadialGradient {
 }
 
 /// Mappings from the unit square into a non-square rectangle.
-#[derive(Debug, Clone)]
+#[derive(Clone)] ////
+////#[derive(Debug, Clone)]
 pub enum ScaleMode {
     /// The unit 1.0 is mapped to the smaller of width & height, but the mapped
     /// item may not cover the entire rectangle.
@@ -192,12 +199,14 @@ impl GradientStops for ArrayVec::<GradientStopArray> {
     }
 }
 
+/* ////
 impl<'a> GradientStops for &'a [GradientStop] {
     fn to_vec(self) -> ArrayVec::<GradientStopArray> { ////
     ////fn to_vec(self) -> Vec<GradientStop> {
         self.to_owned()
     }
 }
+*/ ////
 
 // Generate equally-spaced stops.
 impl<'a> GradientStops for &'a [Color] {
@@ -212,7 +221,8 @@ impl<'a> GradientStops for &'a [Color] {
                 .enumerate()
                 .map(|(i, c)| GradientStop {
                     pos: (i as f32) / denom,
-                    color: c.to_owned(),
+                    color: *c, ////
+                    ////color: c.to_owned(),
                 })
                 .collect()
         }
@@ -423,7 +433,8 @@ impl<P: RenderContext> IntoBrush<P> for FixedGradient {
     fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> { ////
         // Also, at some point we might want to be smarter about the extra clone here.
         Bow::Owned( ////
-            piet.gradient(self.to_owned())
+            piet.gradient(*self)
+            ////piet.gradient(self.to_owned())
                 .expect("error creating gradient"),
         )
     }
