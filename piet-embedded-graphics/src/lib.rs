@@ -11,12 +11,10 @@ use piet::{
     LineJoin, RenderContext, RoundInto, StrokeStyle, Text, TextLayout, TextLayoutBuilder,
 };
 
-/*
-use cairo::{
+use embedded_graphics::{
     BorrowError, Context, Filter, FontFace, FontOptions, FontSlant, FontWeight, Format,
     ImageSurface, Matrix, ScaledFont, Status, SurfacePattern,
 };
-*/
 
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -74,37 +72,37 @@ pub struct EmbeddedGraphicsTextLayoutBuilder(EmbeddedGraphicsTextLayout);
 struct WrappedStatus(Status);
 
 /* ////
-impl fmt::Display for WrappedStatus {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "EmbeddedGraphics error: {:?}", self.0)
+    impl fmt::Display for WrappedStatus {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "EmbeddedGraphics error: {:?}", self.0)
+        }
     }
-}
 
-impl std::error::Error for WrappedStatus {}
+    impl std::error::Error for WrappedStatus {}
 
-trait WrapError<T> {
-    fn wrap(self) -> Result<T, Error>;
-}
-
-// Discussion question: a blanket impl here should be pretty doable.
-
-impl<T> WrapError<T> for Result<T, BorrowError> {
-    fn wrap(self) -> Result<T, Error> {
-        self.map_err(|e| {
-            let e: Box<dyn std::error::Error> = Box::new(e);
-            e.into()
-        })
+    trait WrapError<T> {
+        fn wrap(self) -> Result<T, Error>;
     }
-}
 
-impl<T> WrapError<T> for Result<T, Status> {
-    fn wrap(self) -> Result<T, Error> {
-        self.map_err(|e| {
-            let e: Box<dyn std::error::Error> = Box::new(WrappedStatus(e));
-            e.into()
-        })
+    // Discussion question: a blanket impl here should be pretty doable.
+
+    impl<T> WrapError<T> for Result<T, BorrowError> {
+        fn wrap(self) -> Result<T, Error> {
+            self.map_err(|e| {
+                let e: Box<dyn std::error::Error> = Box::new(e);
+                e.into()
+            })
+        }
     }
-}
+
+    impl<T> WrapError<T> for Result<T, Status> {
+        fn wrap(self) -> Result<T, Error> {
+            self.map_err(|e| {
+                let e: Box<dyn std::error::Error> = Box::new(WrappedStatus(e));
+                e.into()
+            })
+        }
+    }
 */ ////
 
 // we call this with different types of gradient that have `add_color_stop_rgba` fns,
@@ -179,7 +177,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     fn fill(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>) {
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
-        self.set_brush(&*brush);
+        self.set_brush(&brush);
         self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         self.ctx.fill();
     }
@@ -187,7 +185,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     fn fill_even_odd(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>) {
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
-        self.set_brush(&*brush);
+        self.set_brush(&brush);
         self.ctx.set_fill_rule(embedded_graphics::FillRule::EvenOdd);
         self.ctx.fill();
     }
@@ -202,7 +200,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
         self.set_stroke(width, None);
-        self.set_brush(&*brush);
+        self.set_brush(&brush);
         self.ctx.stroke();
     }
 
@@ -216,7 +214,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
         self.set_stroke(width, Some(style));
-        self.set_brush(&*brush);
+        self.set_brush(&brush);
         self.ctx.stroke();
     }
 
@@ -233,7 +231,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         // TODO: bounding box for text
         let brush = brush.make_brush(self, || Rect::ZERO);
         self.ctx.set_scaled_font(&layout.font);
-        self.set_brush(&*brush);
+        self.set_brush(&brush);
         let pos = pos.into();
         self.ctx.move_to(pos.x, pos.y);
         self.ctx.show_text(&layout.text);
@@ -351,8 +349,8 @@ impl<'a> IntoBrush<EmbeddedGraphicsRenderContext<'a>> for Brush {
         &'b self,
         _piet: &mut EmbeddedGraphicsRenderContext,
         _bbox: impl FnOnce() -> Rect,
-    ) -> std::borrow::Cow<'b, Brush> {
-        Cow::Borrowed(self)
+    ) -> Brush {
+        *self
     }
 }
 
@@ -374,7 +372,7 @@ impl Text for EmbeddedGraphicsText {
 
     fn new_font_by_name(&mut self, name: &str, size: f64) -> Self::FontBuilder {
         EmbeddedGraphicsFontBuilder {
-            family: name.to_owned(),
+            family: name,
             size: size.round_into(),
             weight: FontWeight::Normal,
             slant: FontSlant::Normal,
@@ -384,7 +382,7 @@ impl Text for EmbeddedGraphicsText {
     fn new_text_layout(&mut self, font: &Self::Font, text: &str) -> Self::TextLayoutBuilder {
         let text_layout = EmbeddedGraphicsTextLayout {
             font: font.0.clone(),
-            text: text.to_owned(),
+            text: text,
         };
         EmbeddedGraphicsTextLayoutBuilder(text_layout)
     }

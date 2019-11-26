@@ -172,6 +172,7 @@ where
     /// until a [`restore`](#method.restore) operation.
     fn transform(&mut self, transform: Affine);
 
+    /* ////
     /// Create a new image from a pixel buffer.
     fn make_image(
         &mut self,
@@ -186,6 +187,7 @@ where
     /// The image is scaled to the provided `rect`. It will be squashed if
     /// aspect ratios don't match.
     fn draw_image(&mut self, image: &Self::Image, rect: impl Into<Rect>, interp: InterpolationMode);
+    */ ////
 }
 
 /// A trait for various types that can be used as brushes. These include
