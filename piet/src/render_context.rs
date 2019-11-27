@@ -67,8 +67,8 @@ where
     type Text: Text<TextLayout = Self::TextLayout>;
     type TextLayout: TextLayout;
 
-    /// The associated type of an image.
-    type Image;
+    /////// The associated type of an image.
+    ////type Image;
 
     /// Report an internal error.
     ///

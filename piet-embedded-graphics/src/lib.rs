@@ -33,7 +33,7 @@ use unicode_segmentation::UnicodeSegmentation;
 use crate::grapheme::point_x_in_grapheme;
 
 //  TODO: Change to generic display
-type Display = embedded_graphics::mock_display::Display;
+type Display = embedded_graphics::mock_display::MockDisplay<Rgb565>;
 const DISPLAY_WIDTH: u16 = 240;   //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
@@ -63,8 +63,8 @@ impl<'a> EmbeddedGraphicsRenderContext<'a> {
 #[derive(Clone)]
 pub enum Brush {
     Solid(u32),
-    Linear(embedded_graphics::LinearGradient),
-    Radial(embedded_graphics::RadialGradient),
+    ////Linear(embedded_graphics::LinearGradient),
+    ////Radial(embedded_graphics::RadialGradient),
 }
 
 /// Right now, we don't need any state, as the "toy text API" treats the
@@ -195,15 +195,21 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
 
     fn fill(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>) {
         let brush = brush.make_brush(self, || shape.bounding_box());
-        self.set_path(shape);
-        self.set_brush(&brush);
+        //  TODO: Handle Bezier path
+        //  self.set_path(shape);
 
-        // Rectangle with styled stroke and fill
-        let rect = Rectangle::new(Coord::new(50, 20), Coord::new(60, 35))
-            .stroke(Some(5u8))
-            .stroke_width(3)
-            .fill(Some(10u8));
-            //.translate(Coord::new(65, 35));
+        //  TODO: For now we fill the bounding box
+        let bounding_box = shape.bounding_box();
+        let left_top = Coord::new(bounding_box.x0 as i32, bounding_box.y0 as i32);
+        let right_btm = Coord::new(bounding_box.x1 as i32, bounding_box.y1 as i32);
+
+        //  Get fill color
+        let fill = self.convert_brush(&brush);
+
+        //  Create rectangle with fill
+        let rect = Rectangle::<Rgb565>
+            ::new(left_top, right_btm)
+            .fill(Some(fill));
         self.display.draw(rect);
 
         ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
@@ -211,11 +217,14 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     }
 
     fn fill_even_odd(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>) {
+        self.fill(shape, brush);
+        /* TODO
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
         self.set_brush(&brush);
         self.ctx.set_fill_rule(embedded_graphics::FillRule::EvenOdd);
         self.ctx.fill();
+        */
     }
 
     fn clip(&mut self, shape: impl Shape) {
@@ -226,14 +235,64 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
 
     fn stroke(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>, width: f64) {
         let brush = brush.make_brush(self, || shape.bounding_box());
-        self.set_path(shape);
-        self.set_stroke(width, None);
-        self.set_brush(&brush);
 
-        // Line with styled stroke
-        let line = Line::new(Coord::new(50, 20), Coord::new(60, 35))
-            .stroke(Some(5u8));
-        self.display.draw(line);
+        //  Get stroke color
+        let stroke = self.convert_brush(&brush);
+
+        //  Draw a line for each segment of the Bezier path
+        let mut last = Point::ZERO;
+        for el in shape.to_bez_path(0.1) {  //  Previously 1e-3
+            match el {
+                PathEl::MoveTo(p) => {
+                    ////self.ctx.move_to(p.x, p.y);
+                    last = p;
+                }
+                PathEl::LineTo(p) => {
+                    //  Draw line from last to p with styled stroke
+                    let last_coord = Coord::new(last.x as i32, last.y as i32);
+                    let p_coord = Coord::new(p.x as i32, p.y as i32);
+                    let line = Line::<Rgb565>
+                        ::new(last_coord, p_coord)
+                        .stroke(Some(stroke))
+                        .stroke_width(width as u8);
+                    self.display.draw(line);
+                    ////self.ctx.line_to(p.x, p.y);
+                    last = p;
+                }
+                PathEl::QuadTo(p1, p2) => {
+                    let q = QuadBez::new(last, p1, p2);
+                    let c = q.raise();
+                    //  TODO: Handle quad
+                    //  Draw line from last to p2 with styled stroke
+                    let last_coord = Coord::new(last.x as i32, last.y as i32);
+                    let p2_coord = Coord::new(p2.x as i32, p2.y as i32);
+                    let line = Line::<Rgb565>
+                        ::new(last_coord, p2_coord)
+                        .stroke(Some(stroke))
+                        .stroke_width(width as u8);
+                    self.display.draw(line);
+                    ////self.ctx
+                        ////.curve_to(c.p1.x, c.p1.y, c.p2.x, c.p2.y, p2.x, p2.y);
+                    last = p2;
+                }
+                PathEl::CurveTo(p1, p2, p3) => {
+                    //  TODO: Handle curve
+                    //  Draw line from last to p3 with styled stroke
+                    let last_coord = Coord::new(last.x as i32, last.y as i32);
+                    let p3_coord = Coord::new(p3.x as i32, p3.y as i32);
+                    let line = Line::<Rgb565>
+                        ::new(last_coord, p3_coord)
+                        .stroke(Some(stroke))
+                        .stroke_width(width as u8);
+                    self.display.draw(line);
+                    ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+                    last = p3;
+                }
+                PathEl::ClosePath => {
+                    ////self.ctx.close_path()
+                }
+            }
+        }
 
         ////self.ctx.stroke();
     }
@@ -243,13 +302,16 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         shape: impl Shape,
         brush: &impl IntoBrush<Self>,
         width: f64,
-        style: &StrokeStyle,
+        _style: &StrokeStyle,
     ) {
-        let brush = brush.make_brush(self, || shape.bounding_box());
-        self.set_path(shape);
-        self.set_stroke(width, Some(style));
-        self.set_brush(&brush);
-        self.ctx.stroke();
+        self.stroke(shape, brush, width);
+        /* TODO
+            let brush = brush.make_brush(self, || shape.bounding_box());
+            self.set_path(shape);
+            self.set_stroke(width, Some(style));
+            self.set_brush(&brush);
+            self.ctx.stroke();
+        */
     }
 
     fn text(&mut self) -> &mut Self::Text {
@@ -422,94 +484,98 @@ impl Text for EmbeddedGraphicsText {
     }
 }
 
-fn convert_line_cap(line_cap: LineCap) -> embedded_graphics::LineCap {
-    match line_cap {
-        LineCap::Butt => embedded_graphics::LineCap::Butt,
-        LineCap::Round => embedded_graphics::LineCap::Round,
-        LineCap::Square => embedded_graphics::LineCap::Square,
+/*
+    fn convert_line_cap(line_cap: LineCap) -> embedded_graphics::LineCap {
+        match line_cap {
+            LineCap::Butt => embedded_graphics::LineCap::Butt,
+            LineCap::Round => embedded_graphics::LineCap::Round,
+            LineCap::Square => embedded_graphics::LineCap::Square,
+        }
     }
-}
 
-fn convert_line_join(line_join: LineJoin) -> embedded_graphics::LineJoin {
-    match line_join {
-        LineJoin::Miter => embedded_graphics::LineJoin::Miter,
-        LineJoin::Round => embedded_graphics::LineJoin::Round,
-        LineJoin::Bevel => embedded_graphics::LineJoin::Bevel,
+    fn convert_line_join(line_join: LineJoin) -> embedded_graphics::LineJoin {
+        match line_join {
+            LineJoin::Miter => embedded_graphics::LineJoin::Miter,
+            LineJoin::Round => embedded_graphics::LineJoin::Round,
+            LineJoin::Bevel => embedded_graphics::LineJoin::Bevel,
+        }
     }
-}
+*/
 
 impl<'a> EmbeddedGraphicsRenderContext<'a> {
-    /// Set the source pattern to the brush.
-    ///
-    /// EmbeddedGraphics is super stateful, and we're trying to have more retained stuff.
-    /// This is part of the impedance matching.
-    fn set_brush(&mut self, brush: &Brush) {
+    /// Get the source pattern for the brush
+    fn convert_brush(&mut self, brush: &Brush) -> Rgb565 {
         match *brush {
-            Brush::Solid(rgba) => self.ctx.set_source_rgba(
-                byte_to_frac(rgba >> 24),
-                byte_to_frac(rgba >> 16),
-                byte_to_frac(rgba >> 8),
-                byte_to_frac(rgba),
-            ),
-            Brush::Linear(ref linear) => self.ctx.set_source(linear),
-            Brush::Radial(ref radial) => self.ctx.set_source(radial),
+            Brush::Solid(rgba) => {
+                Rgb565::from((
+                    (rgba >> 24) as u8,  //  Red
+                    (rgba >> 16) as u8,  //  Green
+                    (rgba >>  8) as u8   //  Blue
+                ))  //  Alpha transparency not used: rgba as u8
+            }
+            ////Brush::Linear(ref linear) => self.ctx.set_source(linear),
+            ////Brush::Radial(ref radial) => self.ctx.set_source(radial),
         }
     }
 
-    /// Set the stroke parameters.
-    fn set_stroke(&mut self, width: f64, style: Option<&StrokeStyle>) {
-        self.ctx.set_line_width(width);
+    /* TODO
+        /// Set the stroke parameters.
+        fn set_stroke(&mut self, width: f64, style: Option<&StrokeStyle>) {
+            self.ctx.set_line_width(width);
 
-        let line_join = style
-            .and_then(|style| style.line_join)
-            .unwrap_or(LineJoin::Miter);
-        self.ctx.set_line_join(convert_line_join(line_join));
+            let line_join = style
+                .and_then(|style| style.line_join)
+                .unwrap_or(LineJoin::Miter);
+            self.ctx.set_line_join(convert_line_join(line_join));
 
-        let line_cap = style
-            .and_then(|style| style.line_cap)
-            .unwrap_or(LineCap::Butt);
-        self.ctx.set_line_cap(convert_line_cap(line_cap));
+            let line_cap = style
+                .and_then(|style| style.line_cap)
+                .unwrap_or(LineCap::Butt);
+            self.ctx.set_line_cap(convert_line_cap(line_cap));
 
-        let miter_limit = style.and_then(|style| style.miter_limit).unwrap_or(10.0);
-        self.ctx.set_miter_limit(miter_limit);
+            let miter_limit = style.and_then(|style| style.miter_limit).unwrap_or(10.0);
+            self.ctx.set_miter_limit(miter_limit);
 
-        match style.and_then(|style| style.dash.as_ref()) {
-            None => self.ctx.set_dash(&[], 0.0),
-            Some((dashes, offset)) => self.ctx.set_dash(dashes, *offset),
-        }
-    }
-
-    fn set_path(&mut self, shape: impl Shape) {
-        // This shouldn't be necessary, we always leave the context in no-path
-        // state. But just in case, and it should be harmless.
-        self.ctx.new_path();
-        let mut last = Point::ZERO;
-        for el in shape.to_bez_path(1e-3) {
-            match el {
-                PathEl::MoveTo(p) => {
-                    self.ctx.move_to(p.x, p.y);
-                    last = p;
-                }
-                PathEl::LineTo(p) => {
-                    self.ctx.line_to(p.x, p.y);
-                    last = p;
-                }
-                PathEl::QuadTo(p1, p2) => {
-                    let q = QuadBez::new(last, p1, p2);
-                    let c = q.raise();
-                    self.ctx
-                        .curve_to(c.p1.x, c.p1.y, c.p2.x, c.p2.y, p2.x, p2.y);
-                    last = p2;
-                }
-                PathEl::CurveTo(p1, p2, p3) => {
-                    self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-                    last = p3;
-                }
-                PathEl::ClosePath => self.ctx.close_path(),
+            match style.and_then(|style| style.dash.as_ref()) {
+                None => self.ctx.set_dash(&[], 0.0),
+                Some((dashes, offset)) => self.ctx.set_dash(dashes, *offset),
             }
         }
+
+        fn set_path(&mut self, shape: impl Shape) {
+            // This shouldn't be necessary, we always leave the context in no-path
+            // state. But just in case, and it should be harmless.
+            ////self.ctx.new_path();
+            let mut last = Point::ZERO;
+            for el in shape.to_bez_path(0.1) {  //  Previously 1e-3
+                match el {
+                    PathEl::MoveTo(p) => {
+                        ////self.ctx.move_to(p.x, p.y);
+                        last = p;
+                    }
+                    PathEl::LineTo(p) => {
+                        ////self.ctx.line_to(p.x, p.y);
+                        last = p;
+                    }
+                    PathEl::QuadTo(p1, p2) => {
+                        let q = QuadBez::new(last, p1, p2);
+                        let c = q.raise();
+                        ////self.ctx
+                            ////.curve_to(c.p1.x, c.p1.y, c.p2.x, c.p2.y, p2.x, p2.y);
+                        last = p2;
+                    }
+                    PathEl::CurveTo(p1, p2, p3) => {
+                        ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+                        last = p3;
+                    }
+                    PathEl::ClosePath => {
+                        ////self.ctx.close_path()
+                    }
+                }
+            }
+        }
+    */
     }
-}
 
 fn byte_to_frac(byte: u32) -> f64 {
     ((byte & 255) as f64) * (1.0 / 255.0)
