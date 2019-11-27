@@ -12,6 +12,11 @@ use piet::{
 };
 
 use embedded_graphics::{
+    prelude::*,
+    primitives::{
+        Line,
+        Rectangle,
+    },
     drawable::{
         Dimensions,
         Pixel,
@@ -27,13 +32,16 @@ use unicode_segmentation::UnicodeSegmentation;
 
 use crate::grapheme::point_x_in_grapheme;
 
-//  TODO
+//  TODO: Change to generic display
 type Display = embedded_graphics::mock_display::Display;
+const DISPLAY_WIDTH: u16 = 240;   //  For PineTime Display
+const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
 pub struct EmbeddedGraphicsRenderContext<'a> {
     // EmbeddedGraphics has this as Clone and with &self methods, but we do this to avoid
     // concurrency problems.
     display: &'a mut Display,
+
     ////ctx: &'a mut Context,
     ////text: EmbeddedGraphicsText,
 }
@@ -189,8 +197,17 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         let brush = brush.make_brush(self, || shape.bounding_box());
         self.set_path(shape);
         self.set_brush(&brush);
-        self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
-        self.ctx.fill();
+
+        // Rectangle with styled stroke and fill
+        let rect = Rectangle::new(Coord::new(50, 20), Coord::new(60, 35))
+            .stroke(Some(5u8))
+            .stroke_width(3)
+            .fill(Some(10u8));
+            //.translate(Coord::new(65, 35));
+        self.display.draw(rect);
+
+        ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
+        ////self.ctx.fill();
     }
 
     fn fill_even_odd(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>) {
@@ -212,7 +229,13 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         self.set_path(shape);
         self.set_stroke(width, None);
         self.set_brush(&brush);
-        self.ctx.stroke();
+
+        // Line with styled stroke
+        let line = Line::new(Coord::new(50, 20), Coord::new(60, 35))
+            .stroke(Some(5u8));
+        self.display.draw(line);
+
+        ////self.ctx.stroke();
     }
 
     fn stroke_styled(
