@@ -6,7 +6,10 @@ mod grapheme;
 use piet::kurbo::{Affine, PathEl, Point, QuadBez, Rect, Shape};
 
 use piet::{
-    new_error, Color, Error, ErrorKind, FixedGradient, Font, FontBuilder, HitTestMetrics,
+    ////new_error, 
+    Color, Error, 
+    ////ErrorKind, 
+    FixedGradient, Font, FontBuilder, HitTestMetrics,
     HitTestPoint, HitTestTextPosition, ImageFormat, InterpolationMode, IntoBrush, LineCap,
     LineJoin, RenderContext, RoundInto, StrokeStyle, Text, TextLayout, TextLayoutBuilder,
 };
@@ -34,7 +37,7 @@ use crate::grapheme::point_x_in_grapheme;
 
 //  TODO: Change to generic display
 type Display = embedded_graphics::mock_display::MockDisplay<Rgb565>;
-const DISPLAY_WIDTH: u16 = 240;   //  For PineTime Display
+const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
 pub struct EmbeddedGraphicsRenderContext<'a> {
@@ -150,6 +153,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     ////type Image = ImageSurface;
 
     fn status(&mut self) -> Result<(), Error> {
+        /* ////  TODO
         let status = self.ctx.status();
         if status == Status::Success {
             Ok(())
@@ -157,9 +161,23 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
             let e: Box<dyn std::error::Error> = Box::new(WrappedStatus(status));
             Err(e.into())
         }
+        */ ////
+        Ok(())
     }
 
     fn clear(&mut self, color: Color) {
+        //  Create black brush
+        let brush = self.solid_brush(
+            Color::from_rgba32_u32(0)  //  Black
+        );
+        //  Create rectangle to fill the screen
+        let shape = Rect::new(0., 0., 
+            DISPLAY_WIDTH  as f64 - 1., 
+            DISPLAY_HEIGHT as f64 - 1.);
+        //  Fill the screen
+        self.fill(shape, &brush);
+
+        /* ////
         let rgba = color.as_rgba_u32();
         self.ctx.set_source_rgb(
             byte_to_frac(rgba >> 24),
@@ -167,6 +185,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
             byte_to_frac(rgba >> 8),
         );
         self.ctx.paint();
+        */ ////
     }
 
     fn solid_brush(&mut self, color: Color) -> Brush {
