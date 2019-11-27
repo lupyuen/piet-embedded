@@ -429,39 +429,41 @@ impl From<FixedRadialGradient> for FixedGradient {
     }
 }
 
-impl<P: RenderContext> IntoBrush<P> for FixedGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> P::Brush { ////
-    ////fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
-        // Also, at some point we might want to be smarter about the extra clone here.
-        ////Bow::Owned(
-            piet.gradient(self.clone())
-            ////piet.gradient(self.to_owned())
-                .expect("error creating gradient")
-        ////)
+/* ////
+    impl<P: RenderContext> IntoBrush<P> for FixedGradient {
+        fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+        ////fn make_brush<'a>(&'a self, piet: &mut P, _bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
+            // Also, at some point we might want to be smarter about the extra clone here.
+            ////Bow::Owned(
+                piet.gradient(self.clone())
+                ////piet.gradient(self.to_owned())
+                    .expect("error creating gradient")
+            ////)
+        }
     }
-}
 
-impl<P: RenderContext> IntoBrush<P> for LinearGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush { ////
-    ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
-        let rect = bbox();
-        let gradient = self.resolve(rect);
-        // Perhaps the make_brush method should be fallible instead of panicking.
-        piet.gradient(gradient).expect("error creating gradient") ////
-        ////Bow::Owned(piet.gradient(gradient).expect("error creating gradient"))
+    impl<P: RenderContext> IntoBrush<P> for LinearGradient {
+        fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+        ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
+            let rect = bbox();
+            let gradient = self.resolve(rect);
+            // Perhaps the make_brush method should be fallible instead of panicking.
+            piet.gradient(gradient).expect("error creating gradient") ////
+            ////Bow::Owned(piet.gradient(gradient).expect("error creating gradient"))
+        }
     }
-}
 
-impl<P: RenderContext> IntoBrush<P> for RadialGradient {
-    fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush { ////
-    ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
-        let rect = bbox();
-        let gradient = self.resolve(rect);
-        // Perhaps the make_brush method should be fallible instead of panicking.
-        piet.gradient(gradient).expect("error creating gradient") ////
-        ////Bow::Owned(piet.gradient(gradient).expect("error creating gradient"))
+    impl<P: RenderContext> IntoBrush<P> for RadialGradient {
+        fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> P::Brush { ////
+        ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
+            let rect = bbox();
+            let gradient = self.resolve(rect);
+            // Perhaps the make_brush method should be fallible instead of panicking.
+            piet.gradient(gradient).expect("error creating gradient") ////
+            ////Bow::Owned(piet.gradient(gradient).expect("error creating gradient"))
+        }
     }
-}
+*/ ////
 
 fn equalize_sides_preserving_center(rect: Rect, new_len: f64) -> Rect {
     let size = Size::new(new_len, new_len);

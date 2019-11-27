@@ -52,10 +52,10 @@ impl<'a> EmbeddedGraphicsRenderContext<'a> {
     /// At the moment, it uses the "toy text API" for text layout, but when
     /// we change to a more sophisticated text layout approach, we'll probably
     /// need a factory for that as an additional argument.
-    pub fn new(ctx: &mut Context) -> EmbeddedGraphicsRenderContext {
+    pub fn new(display: &mut Display) -> EmbeddedGraphicsRenderContext {
         EmbeddedGraphicsRenderContext {
-            ctx,
-            text: EmbeddedGraphicsText,
+            display,
+            ////text: EmbeddedGraphicsText,
         }
     }
 }
@@ -173,25 +173,27 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         Brush::Solid(color.as_rgba_u32())
     }
 
-    fn gradient(&mut self, gradient: impl Into<FixedGradient>) -> Result<Brush, Error> {
-        match gradient.into() {
-            FixedGradient::Linear(linear) => {
-                let (x0, y0) = (linear.start.x, linear.start.y);
-                let (x1, y1) = (linear.end.x, linear.end.y);
-                let lg = embedded_graphics::LinearGradient::new(x0, y0, x1, y1);
-                set_gradient_stops!(&lg, &linear.stops);
-                Ok(Brush::Linear(lg))
-            }
-            FixedGradient::Radial(radial) => {
-                let (xc, yc) = (radial.center.x, radial.center.y);
-                let (xo, yo) = (radial.origin_offset.x, radial.origin_offset.y);
-                let r = radial.radius;
-                let rg = embedded_graphics::RadialGradient::new(xc + xo, yc + yo, 0.0, xc, yc, r);
-                set_gradient_stops!(&rg, &radial.stops);
-                Ok(Brush::Radial(rg))
+    /* ////  TODO
+        fn gradient(&mut self, gradient: impl Into<FixedGradient>) -> Result<Brush, Error> {
+            match gradient.into() {
+                FixedGradient::Linear(linear) => {
+                    let (x0, y0) = (linear.start.x, linear.start.y);
+                    let (x1, y1) = (linear.end.x, linear.end.y);
+                    let lg = embedded_graphics::LinearGradient::new(x0, y0, x1, y1);
+                    set_gradient_stops!(&lg, &linear.stops);
+                    Ok(Brush::Linear(lg))
+                }
+                FixedGradient::Radial(radial) => {
+                    let (xc, yc) = (radial.center.x, radial.center.y);
+                    let (xo, yo) = (radial.origin_offset.x, radial.origin_offset.y);
+                    let r = radial.radius;
+                    let rg = embedded_graphics::RadialGradient::new(xc + xo, yc + yo, 0.0, xc, yc, r);
+                    set_gradient_stops!(&rg, &radial.stops);
+                    Ok(Brush::Radial(rg))
+                }
             }
         }
-    }
+    */ ////
 
     fn fill(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>) {
         let brush = brush.make_brush(self, || shape.bounding_box());

@@ -45,7 +45,7 @@ impl NullRenderContext {
 
 impl RenderContext for NullRenderContext {
     type Brush = NullBrush;
-    type Image = NullImage;
+    ////type Image = NullImage;
     type Text = NullText;
     type TextLayout = NullTextLayout;
 
@@ -57,9 +57,11 @@ impl RenderContext for NullRenderContext {
         NullBrush
     }
 
-    fn gradient(&mut self, _gradient: impl Into<FixedGradient>) -> Result<Self::Brush, Error> {
-        Ok(NullBrush)
-    }
+    /* ////
+        fn gradient(&mut self, _gradient: impl Into<FixedGradient>) -> Result<Self::Brush, Error> {
+            Ok(NullBrush)
+        }
+    */ ////
 
     fn clear(&mut self, _color: Color) {}
 
@@ -103,22 +105,24 @@ impl RenderContext for NullRenderContext {
     }
     fn transform(&mut self, _transform: Affine) {}
 
-    fn make_image(
-        &mut self,
-        _width: usize,
-        _height: usize,
-        _buf: &[u8],
-        _format: ImageFormat,
-    ) -> Result<Self::Image, Error> {
-        Ok(NullImage)
-    }
-    fn draw_image(
-        &mut self,
-        _image: &Self::Image,
-        _rect: impl Into<Rect>,
-        _interp: InterpolationMode,
-    ) {
-    }
+    /* ////
+        fn make_image(
+            &mut self,
+            _width: usize,
+            _height: usize,
+            _buf: &[u8],
+            _format: ImageFormat,
+        ) -> Result<Self::Image, Error> {
+            Ok(NullImage)
+        }
+        fn draw_image(
+            &mut self,
+            _image: &Self::Image,
+            _rect: impl Into<Rect>,
+            _interp: InterpolationMode,
+        ) {
+        }
+    */ ////
 }
 
 impl Text for NullText {

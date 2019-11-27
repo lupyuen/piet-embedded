@@ -86,8 +86,8 @@ where
     /// other potentially retained objects will be heavier.
     fn solid_brush(&mut self, color: Color) -> Self::Brush;
 
-    /// Create a new gradient brush.
-    fn gradient(&mut self, gradient: impl Into<FixedGradient>) -> Result<Self::Brush, Error>;
+    /////// Create a new gradient brush.
+    ////fn gradient(&mut self, gradient: impl Into<FixedGradient>) -> Result<Self::Brush, Error>;
 
     /// Clear the canvas with the given color.
     ///
@@ -244,9 +244,9 @@ impl<P: RenderContext> IntoBrush<P> for Color {
 ////#[derive(Debug, Clone)]
 pub enum PaintBrush {
     Color(Color),
-    Linear(LinearGradient),
-    Radial(RadialGradient),
-    Fixed(FixedGradient),
+    ////Linear(LinearGradient),
+    ////Radial(RadialGradient),
+    ////Fixed(FixedGradient),
 }
 
 impl<P: RenderContext> IntoBrush<P> for PaintBrush {
@@ -254,9 +254,9 @@ impl<P: RenderContext> IntoBrush<P> for PaintBrush {
     ////fn make_brush<'a>(&'a self, piet: &mut P, bbox: impl FnOnce() -> Rect) -> Bow<'a, P::Brush> {
         match self {
             PaintBrush::Color(color) => color.make_brush(piet, bbox),
-            PaintBrush::Linear(linear) => linear.make_brush(piet, bbox),
-            PaintBrush::Radial(radial) => radial.make_brush(piet, bbox),
-            PaintBrush::Fixed(fixed) => fixed.make_brush(piet, bbox),
+            ////PaintBrush::Linear(linear) => linear.make_brush(piet, bbox),
+            ////PaintBrush::Radial(radial) => radial.make_brush(piet, bbox),
+            ////PaintBrush::Fixed(fixed) => fixed.make_brush(piet, bbox),
         }
     }
 }
@@ -267,32 +267,34 @@ impl From<Color> for PaintBrush {
     }
 }
 
-impl From<LinearGradient> for PaintBrush {
-    fn from(src: LinearGradient) -> PaintBrush {
-        PaintBrush::Linear(src)
+/* ////
+    impl From<LinearGradient> for PaintBrush {
+        fn from(src: LinearGradient) -> PaintBrush {
+            PaintBrush::Linear(src)
+        }
     }
-}
 
-impl From<RadialGradient> for PaintBrush {
-    fn from(src: RadialGradient) -> PaintBrush {
-        PaintBrush::Radial(src)
+    impl From<RadialGradient> for PaintBrush {
+        fn from(src: RadialGradient) -> PaintBrush {
+            PaintBrush::Radial(src)
+        }
     }
-}
 
-impl From<FixedGradient> for PaintBrush {
-    fn from(src: FixedGradient) -> PaintBrush {
-        PaintBrush::Fixed(src)
+    impl From<FixedGradient> for PaintBrush {
+        fn from(src: FixedGradient) -> PaintBrush {
+            PaintBrush::Fixed(src)
+        }
     }
-}
 
-impl From<FixedLinearGradient> for PaintBrush {
-    fn from(src: FixedLinearGradient) -> PaintBrush {
-        PaintBrush::Fixed(src.into())
+    impl From<FixedLinearGradient> for PaintBrush {
+        fn from(src: FixedLinearGradient) -> PaintBrush {
+            PaintBrush::Fixed(src.into())
+        }
     }
-}
 
-impl From<FixedRadialGradient> for PaintBrush {
-    fn from(src: FixedRadialGradient) -> PaintBrush {
-        PaintBrush::Fixed(src.into())
+    impl From<FixedRadialGradient> for PaintBrush {
+        fn from(src: FixedRadialGradient) -> PaintBrush {
+            PaintBrush::Fixed(src.into())
+        }
     }
-}
+*/ ////
