@@ -10,14 +10,9 @@ keywords = ["graphics", "2d", "embedded", "no-std"]
 categories = ["rendering::graphics-api"]
 
 [dependencies]
-piet = { version = "0.0.7", path = "../piet" }
+piet                 = { version = "0.0.7", path = "../piet" }
 unicode-segmentation = "1.3.0"
-
-[dependencies.embedded-graphics]
-version = "0.5.2"
+embedded-graphics    = "0.5.2"
 
 [dev-dependencies]
 piet-test = { version = "0.0.7", path = "../piet-test" }
-
-[dev-dependencies.embedded-graphics]
-version = "0.5.2"

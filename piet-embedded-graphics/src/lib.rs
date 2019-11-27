@@ -12,19 +12,30 @@ use piet::{
 };
 
 use embedded_graphics::{
-    BorrowError, Context, Filter, FontFace, FontOptions, FontSlant, FontWeight, Format,
-    ImageSurface, Matrix, ScaledFont, Status, SurfacePattern,
+    drawable::{
+        Dimensions,
+        Pixel,
+    }, 
+    Drawing, 
+    SizedDrawing,
+    pixelcolor::Rgb565, 
+    // BorrowError, Context, Filter, FontFace, FontOptions, FontSlant, FontWeight, Format,
+    // ImageSurface, Matrix, ScaledFont, Status, SurfacePattern,
 };
 
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::grapheme::point_x_in_grapheme;
 
+//  TODO
+type Display = embedded_graphics::mock_display::Display;
+
 pub struct EmbeddedGraphicsRenderContext<'a> {
     // EmbeddedGraphics has this as Clone and with &self methods, but we do this to avoid
     // concurrency problems.
-    ctx: &'a mut Context,
-    text: EmbeddedGraphicsText,
+    display: &'a mut Display,
+    ////ctx: &'a mut Context,
+    ////text: EmbeddedGraphicsText,
 }
 
 impl<'a> EmbeddedGraphicsRenderContext<'a> {
@@ -128,7 +139,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     type Text = EmbeddedGraphicsText;
     type TextLayout = EmbeddedGraphicsTextLayout;
 
-    type Image = ImageSurface;
+    ////type Image = ImageSurface;
 
     fn status(&mut self) -> Result<(), Error> {
         let status = self.ctx.status();
