@@ -1,5 +1,4 @@
 use core::str::FromStr;
-use unicode_segmentation::UnicodeSegmentation;
 use heapless::{
     String,
     consts::*,
@@ -7,7 +6,7 @@ use heapless::{
 use piet::kurbo::{ Point, };
 use piet::{
     Error, 
-    Font, FontBuilder, HitTestMetrics,
+    Font, FontBuilder,
     HitTestPoint, HitTestTextPosition, 
     Text, TextLayout, TextLayoutBuilder,
 };
@@ -112,7 +111,7 @@ impl TextLayout for EmbedTextLayout {
     // TODO do with lines
     fn hit_test_point(&self, point: Point) -> HitTestPoint {
         return HitTestPoint::default();  ////  Hit test with text not supported
-        
+
         /* ////  TODO
         // internal logic is using grapheme clusters, but return the text position associated
         // with the border of the grapheme cluster.

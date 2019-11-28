@@ -1,13 +1,13 @@
-use piet::{
-    ////new_error, 
-    Color, Error, 
-    ////ErrorKind, 
-};
-
-#[derive(Debug)]
-struct WrappedStatus(Status);
-
 /* ////
+    use piet::{
+        ////new_error, 
+        Error, 
+        ////ErrorKind, 
+    };
+
+    #[derive(Debug)]
+    struct WrappedStatus(Status);
+
     impl fmt::Display for WrappedStatus {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
             write!(f, "Embed error: {:?}", self.0)

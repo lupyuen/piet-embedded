@@ -253,7 +253,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
 
         //  Create text
         let text = text::FontType::<'a>
-            ::render_str(&layout.text.clone())
+            ::render_str(&layout.text)
             .stroke(Some(stroke));
         
         //  Render text to display
