@@ -9,29 +9,34 @@ use piet::{
     ////new_error, 
     Color, Error, 
     ////ErrorKind, 
-    FixedGradient, Font, FontBuilder, HitTestMetrics,
-    HitTestPoint, HitTestTextPosition, ImageFormat, InterpolationMode, IntoBrush, LineCap,
-    LineJoin, RenderContext, RoundInto, StrokeStyle, Text, TextLayout, TextLayoutBuilder,
+    ////FixedGradient, 
+    Font, FontBuilder, HitTestMetrics,
+    HitTestPoint, HitTestTextPosition, 
+    ////ImageFormat, InterpolationMode, 
+    IntoBrush, 
+    ////LineCap, LineJoin, 
+    RenderContext, RoundInto, StrokeStyle, Text, TextLayout, TextLayoutBuilder,
 };
 
 use embedded_graphics::{
     prelude::*,
+    fonts::{
+        self,
+        Font as EFont,
+    },
     primitives::{
         Line,
         Rectangle,
     },
-    drawable::{
-        Dimensions,
-        Pixel,
-    }, 
-    Drawing, 
-    SizedDrawing,
     pixelcolor::Rgb565, 
+    Drawing, 
     // BorrowError, Context, Filter, FontFace, FontOptions, FontSlant, FontWeight, Format,
     // ImageSurface, Matrix, ScaledFont, Status, SurfacePattern,
 };
 
 use unicode_segmentation::UnicodeSegmentation;
+
+use arrayvec::ArrayString;
 
 use crate::grapheme::point_x_in_grapheme;
 
@@ -40,25 +45,21 @@ type Display = embedded_graphics::mock_display::MockDisplay<Rgb565>;
 const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
-pub struct EmbeddedGraphicsRenderContext<'a> {
-    // EmbeddedGraphics has this as Clone and with &self methods, but we do this to avoid
-    // concurrency problems.
+pub struct EmbedRenderContext<'a> {
     display: &'a mut Display,
-
-    ////ctx: &'a mut Context,
-    ////text: EmbeddedGraphicsText,
+    text: EmbedText,
 }
 
-impl<'a> EmbeddedGraphicsRenderContext<'a> {
-    /// Create a new EmbeddedGraphics back-end.
+impl<'a> EmbedRenderContext<'a> {
+    /// Create a new embedded-graphics back-end.
     ///
     /// At the moment, it uses the "toy text API" for text layout, but when
     /// we change to a more sophisticated text layout approach, we'll probably
     /// need a factory for that as an additional argument.
-    pub fn new(display: &mut Display) -> EmbeddedGraphicsRenderContext {
-        EmbeddedGraphicsRenderContext {
+    pub fn new(display: &mut Display) -> EmbedRenderContext {
+        EmbedRenderContext {
             display,
-            ////text: EmbeddedGraphicsText,
+            text: EmbedText,
         }
     }
 }
@@ -72,23 +73,23 @@ pub enum Brush {
 
 /// Right now, we don't need any state, as the "toy text API" treats the
 /// access to system font information as a global. This will change.
-pub struct EmbeddedGraphicsText;
+pub struct EmbedText;
 
-pub struct EmbeddedGraphicsFont(ScaledFont);
+pub struct EmbedFont;
 
-pub struct EmbeddedGraphicsFontBuilder {
-    family: String,
-    weight: FontWeight,
-    slant: FontSlant,
-    size: f64,
+pub struct EmbedFontBuilder {
+    ////family: String,
+    ////weight: FontWeight,
+    ////slant: FontSlant,
+    ////size: f64,
 }
 
-pub struct EmbeddedGraphicsTextLayout {
-    font: ScaledFont,
-    text: String,
+pub struct EmbedTextLayout {
+    ////font: ScaledFont,
+    text: ArrayString::<[u8; 20]>,
 }
 
-pub struct EmbeddedGraphicsTextLayoutBuilder(EmbeddedGraphicsTextLayout);
+pub struct EmbedTextLayoutBuilder(EmbedTextLayout);
 
 #[derive(Debug)]
 struct WrappedStatus(Status);
@@ -96,7 +97,7 @@ struct WrappedStatus(Status);
 /* ////
     impl fmt::Display for WrappedStatus {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            write!(f, "EmbeddedGraphics error: {:?}", self.0)
+            write!(f, "Embed error: {:?}", self.0)
         }
     }
 
@@ -144,11 +145,11 @@ macro_rules! set_gradient_stops {
     };
 }
 
-impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
+impl<'a> RenderContext for EmbedRenderContext<'a> {
     type Brush = Brush;
 
-    type Text = EmbeddedGraphicsText;
-    type TextLayout = EmbeddedGraphicsTextLayout;
+    type Text = EmbedText;
+    type TextLayout = EmbedTextLayout;
 
     ////type Image = ImageSurface;
 
@@ -249,9 +250,12 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     }
 
     fn clip(&mut self, shape: impl Shape) {
+        assert!(false, "no clip"); //// TODO
+        /*
         self.set_path(shape);
         self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         self.ctx.clip();
+        */
     }
 
     fn stroke(&mut self, shape: impl Shape, brush: &impl IntoBrush<Self>, width: f64) {
@@ -336,7 +340,8 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     }
 
     fn text(&mut self) -> &mut Self::Text {
-        &mut self.text
+        &mut EmbedText{}
+        ////&mut self.text
     }
 
     fn draw_text(
@@ -345,23 +350,45 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
         pos: impl Into<Point>,
         brush: &impl IntoBrush<Self>,
     ) {
-        // TODO: bounding box for text
         let brush = brush.make_brush(self, || Rect::ZERO);
+
+        //  Get stroke color
+        let stroke = self.convert_brush(&brush);
+
+        //  Create text
+        let text = fonts::Font12x16::<Rgb565>
+            ::render_str(&layout.text)
+            .stroke(Some(stroke));
+        
+        //  Render text to display
+        self.display.draw(text);
+
+        // TODO: bounding box for text
+        /*
         self.ctx.set_scaled_font(&layout.font);
         self.set_brush(&brush);
         let pos = pos.into();
         self.ctx.move_to(pos.x, pos.y);
         self.ctx.show_text(&layout.text);
+        */
     }
 
     fn save(&mut self) -> Result<(), Error> {
+        assert!(false, "no save");  ////  TODO
+        Ok(())
+        /*
         self.ctx.save();
         self.status()
+        */
     }
 
     fn restore(&mut self) -> Result<(), Error> {
+        assert!(false, "no restore");  ////  TODO
+        Ok(())
+        /*
         self.ctx.restore();
         self.status()
+        */
     }
 
     fn finish(&mut self) -> Result<(), Error> {
@@ -369,7 +396,8 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
     }
 
     fn transform(&mut self, transform: Affine) {
-        self.ctx.transform(affine_to_matrix(transform));
+        assert!(false, "no transform");  ////  TODO
+        ////self.ctx.transform(affine_to_matrix(transform));
     }
 
 /* ////   
@@ -404,7 +432,7 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
                         }
                     }
                     ImageFormat::RgbaPremul => {
-                        // It's annoying that EmbeddedGraphics exposes only ARGB. Ah well. Let's
+                        // It's annoying that Embed exposes only ARGB. Ah well. Let's
                         // hope that LLVM generates pretty good code for this.
                         // TODO: consider adding BgraPremul format.
                         for x in 0..width {
@@ -461,47 +489,47 @@ impl<'a> RenderContext for EmbeddedGraphicsRenderContext<'a> {
 */ ////
 }
 
-impl<'a> IntoBrush<EmbeddedGraphicsRenderContext<'a>> for Brush {
+impl<'a> IntoBrush<EmbedRenderContext<'a>> for Brush {
     fn make_brush<'b>(
         &'b self,
-        _piet: &mut EmbeddedGraphicsRenderContext,
+        _piet: &mut EmbedRenderContext,
         _bbox: impl FnOnce() -> Rect,
     ) -> Brush {
         *self
     }
 }
 
-impl EmbeddedGraphicsText {
+impl EmbedText {
     /// Create a new factory that satisfies the piet `Text` trait.
     ///
     /// No state is needed for now because the current implementation is just
     /// toy text, but that will change when proper text is implemented.
-    pub fn new() -> EmbeddedGraphicsText {
-        EmbeddedGraphicsText
+    pub fn new() -> EmbedText {
+        EmbedText
     }
 }
 
-impl Text for EmbeddedGraphicsText {
-    type Font = EmbeddedGraphicsFont;
-    type FontBuilder = EmbeddedGraphicsFontBuilder;
-    type TextLayout = EmbeddedGraphicsTextLayout;
-    type TextLayoutBuilder = EmbeddedGraphicsTextLayoutBuilder;
+impl Text for EmbedText {
+    type Font = EmbedFont;
+    type FontBuilder = EmbedFontBuilder;
+    type TextLayout = EmbedTextLayout;
+    type TextLayoutBuilder = EmbedTextLayoutBuilder;
 
     fn new_font_by_name(&mut self, name: &str, size: f64) -> Self::FontBuilder {
-        EmbeddedGraphicsFontBuilder {
-            family: name,
-            size: size.round_into(),
-            weight: FontWeight::Normal,
-            slant: FontSlant::Normal,
+        EmbedFontBuilder {
+            ////family: name,
+            ////size: size.round_into(),
+            ////weight: FontWeight::Normal,
+            ////slant: FontSlant::Normal,
         }
     }
 
     fn new_text_layout(&mut self, font: &Self::Font, text: &str) -> Self::TextLayoutBuilder {
-        let text_layout = EmbeddedGraphicsTextLayout {
+        let text_layout = EmbedTextLayout {
             font: font.0.clone(),
             text: text,
         };
-        EmbeddedGraphicsTextLayoutBuilder(text_layout)
+        EmbedTextLayoutBuilder(text_layout)
     }
 }
 
@@ -523,7 +551,7 @@ impl Text for EmbeddedGraphicsText {
     }
 */
 
-impl<'a> EmbeddedGraphicsRenderContext<'a> {
+impl<'a> EmbedRenderContext<'a> {
     /// Get the source pattern for the brush
     fn convert_brush(&mut self, brush: &Brush) -> Rgb565 {
         match *brush {
@@ -598,36 +626,38 @@ impl<'a> EmbeddedGraphicsRenderContext<'a> {
     */
     }
 
-fn byte_to_frac(byte: u32) -> f64 {
-    ((byte & 255) as f64) * (1.0 / 255.0)
-}
-
-/// Can't implement RoundFrom here because both types belong to other crates.
-fn affine_to_matrix(affine: Affine) -> Matrix {
-    let a = affine.as_coeffs();
-    Matrix {
-        xx: a[0],
-        yx: a[1],
-        xy: a[2],
-        yy: a[3],
-        x0: a[4],
-        y0: a[5],
+/* ////
+    fn byte_to_frac(byte: u32) -> f64 {
+        ((byte & 255) as f64) * (1.0 / 255.0)
     }
-}
 
-fn scale_matrix(scale: f64) -> Matrix {
-    Matrix {
-        xx: scale,
-        yx: 0.0,
-        xy: 0.0,
-        yy: scale,
-        x0: 0.0,
-        y0: 0.0,
+    /// Can't implement RoundFrom here because both types belong to other crates.
+    fn affine_to_matrix(affine: Affine) -> Matrix {
+        let a = affine.as_coeffs();
+        Matrix {
+            xx: a[0],
+            yx: a[1],
+            xy: a[2],
+            yy: a[3],
+            x0: a[4],
+            y0: a[5],
+        }
     }
-}
 
-impl FontBuilder for EmbeddedGraphicsFontBuilder {
-    type Out = EmbeddedGraphicsFont;
+    fn scale_matrix(scale: f64) -> Matrix {
+        Matrix {
+            xx: scale,
+            yx: 0.0,
+            xy: 0.0,
+            yy: scale,
+            x0: 0.0,
+            y0: 0.0,
+        }
+    }
+*/ ////
+
+impl FontBuilder for EmbedFontBuilder {
+    type Out = EmbedFont;
 
     fn build(self) -> Result<Self::Out, Error> {
         let font_face = FontFace::toy_create(&self.family, self.slant, self.weight);
@@ -635,21 +665,21 @@ impl FontBuilder for EmbeddedGraphicsFontBuilder {
         let ctm = scale_matrix(1.0);
         let options = FontOptions::default();
         let scaled_font = ScaledFont::new(&font_face, &font_matrix, &ctm, &options);
-        Ok(EmbeddedGraphicsFont(scaled_font))
+        Ok(EmbedFont(scaled_font))
     }
 }
 
-impl Font for EmbeddedGraphicsFont {}
+impl Font for EmbedFont {}
 
-impl TextLayoutBuilder for EmbeddedGraphicsTextLayoutBuilder {
-    type Out = EmbeddedGraphicsTextLayout;
+impl TextLayoutBuilder for EmbedTextLayoutBuilder {
+    type Out = EmbedTextLayout;
 
     fn build(self) -> Result<Self::Out, Error> {
         Ok(self.0)
     }
 }
 
-impl TextLayout for EmbeddedGraphicsTextLayout {
+impl TextLayout for EmbedTextLayout {
     fn width(&self) -> f64 {
         self.font.text_extents(&self.text).x_advance
     }
@@ -795,7 +825,7 @@ mod test {
 
     #[test]
     fn test_hit_test_text_position_basic() {
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
 
         let input = "piet text!";
         let font = text_layout
@@ -883,7 +913,7 @@ mod test {
         let input = "é";
         assert_eq!(input.len(), 2);
 
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -926,7 +956,7 @@ mod test {
         assert_eq!(input.len(), 7);
         assert_eq!(input.chars().count(), 3);
 
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -962,7 +992,7 @@ mod test {
         let input = "é\u{0023}\u{FE0F}\u{20E3}1\u{1D407}"; // #️⃣,, 𝐇
         assert_eq!(input.len(), 14);
 
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -1038,7 +1068,7 @@ mod test {
     #[test]
     #[cfg(target_os = "linux")]
     fn test_hit_test_point_basic_0() {
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
 
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
@@ -1085,7 +1115,7 @@ mod test {
     #[test]
     #[cfg(target_os = "macos")]
     fn test_hit_test_point_basic_0() {
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
 
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
@@ -1131,7 +1161,7 @@ mod test {
     #[cfg(target_os = "linux")]
     // for testing that 'middle' assignment in binary search is correct
     fn test_hit_test_point_basic_1() {
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
 
         // base condition, one grapheme
         let font = text_layout
@@ -1163,7 +1193,7 @@ mod test {
     #[cfg(target_os = "macos")]
     // for testing that 'middle' assignment in binary search is correct
     fn test_hit_test_point_basic_1() {
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
 
         // base condition, one grapheme
         let font = text_layout
@@ -1201,7 +1231,7 @@ mod test {
         // 4 graphemes
         let input = "é\u{0023}\u{FE0F}\u{20E3}1\u{1D407}"; // #️⃣,, 𝐇
 
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -1250,7 +1280,7 @@ mod test {
         // 4 graphemes
         let input = "é\u{0023}\u{FE0F}\u{20E3}1\u{1D407}"; // #️⃣,, 𝐇
 
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -1300,7 +1330,7 @@ mod test {
         // This corresponds to the char 'y' in the input.
         let input = "tßßypi";
 
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
@@ -1329,7 +1359,7 @@ mod test {
         // This corresponds to the char 'y' in the input.
         let input = "tßßypi";
 
-        let mut text_layout = EmbeddedGraphicsText::new();
+        let mut text_layout = EmbedText::new();
         let font = text_layout
             .new_font_by_name("sans-serif", 12.0)
             .build()
