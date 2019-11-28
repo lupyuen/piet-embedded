@@ -1,6 +1,9 @@
+use core::str::FromStr;
 use unicode_segmentation::UnicodeSegmentation;
-use arrayvec::ArrayString;
-use crate::grapheme::point_x_in_grapheme;
+use heapless::{
+    String,
+    consts::*,
+};
 use piet::kurbo::{ Point, };
 use piet::{
     Error, 
@@ -32,7 +35,8 @@ pub struct EmbedFontBuilder {
 
 pub struct EmbedTextLayout {
     ////font: ScaledFont,
-    pub text: ArrayString::<[u8; 20]>,
+    ////pub text: ArrayString::<[u8; 20]>,
+    pub text: String::<U20>,
 }
 
 pub struct EmbedTextLayoutBuilder(EmbedTextLayout);
@@ -65,7 +69,7 @@ impl Text for EmbedText {
     fn new_text_layout(&mut self, font: &Self::Font, text: &str) -> Self::TextLayoutBuilder {
         let text_layout = EmbedTextLayout {
             ////font: font.0.clone(),
-            text: text,
+            text: String::<U20>::from_str(text).expect("text layout fail"),
         };
         EmbedTextLayoutBuilder(text_layout)
     }
@@ -100,12 +104,16 @@ impl TextLayoutBuilder for EmbedTextLayoutBuilder {
 
 impl TextLayout for EmbedTextLayout {
     fn width(&self) -> f64 {
-        self.font.text_extents(&self.text).x_advance
+        (self.text.len() * FONT_WIDTH as usize) as f64
+        ////self.font.text_extents(&self.text).x_advance
     }
 
     // first assume one line.
     // TODO do with lines
     fn hit_test_point(&self, point: Point) -> HitTestPoint {
+        return HitTestPoint::default();  ////  Hit test with text not supported
+        
+        /* ////  TODO
         // internal logic is using grapheme clusters, but return the text position associated
         // with the border of the grapheme cluster.
 
@@ -173,9 +181,13 @@ impl TextLayout for EmbedTextLayout {
                 unreachable!("hit_test_point conditional is exhaustive");
             }
         }
+        */ ////
     }
 
     fn hit_test_text_position(&self, text_position: usize) -> Option<HitTestTextPosition> {
+        return Some(HitTestTextPosition::default());  ////  Hit test with text not supported
+
+        /*  ////  TODO
         // Using substrings, but now with unicode grapheme awareness
 
         let text_len = self.text.len();
@@ -224,5 +236,6 @@ impl TextLayout for EmbedTextLayout {
                 },
             })
         }
+        */ ////
     }
 }

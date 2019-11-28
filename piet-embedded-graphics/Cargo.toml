@@ -13,7 +13,7 @@ categories = ["rendering::graphics-api"]
 piet                 = { version = "0.0.7", path = "../piet" }
 unicode-segmentation = "1.3.0"
 embedded-graphics    = "0.5.2"
-arrayvec = { version = "0.5.1", default-features = false } #### Disable default features to support `no_std`
+heapless             = "0.5.1" #### `static` friendly data structures that don't require dynamic memory allocation
 
 [dev-dependencies]
 piet-test = { version = "0.0.7", path = "../piet-test" }
