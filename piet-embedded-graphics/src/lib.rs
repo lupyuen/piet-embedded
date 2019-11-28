@@ -526,7 +526,7 @@ impl Text for EmbedText {
 
     fn new_text_layout(&mut self, font: &Self::Font, text: &str) -> Self::TextLayoutBuilder {
         let text_layout = EmbedTextLayout {
-            font: font.0.clone(),
+            ////font: font.0.clone(),
             text: text,
         };
         EmbedTextLayoutBuilder(text_layout)
@@ -660,12 +660,15 @@ impl FontBuilder for EmbedFontBuilder {
     type Out = EmbedFont;
 
     fn build(self) -> Result<Self::Out, Error> {
+        Ok(EmbedFont)
+        /*
         let font_face = FontFace::toy_create(&self.family, self.slant, self.weight);
         let font_matrix = scale_matrix(self.size);
         let ctm = scale_matrix(1.0);
         let options = FontOptions::default();
         let scaled_font = ScaledFont::new(&font_face, &font_matrix, &ctm, &options);
         Ok(EmbedFont(scaled_font))
+        */
     }
 }
 
