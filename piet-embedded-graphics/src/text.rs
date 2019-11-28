@@ -13,7 +13,7 @@ use embedded_graphics::{
     pixelcolor::Rgb565, 
 };
 
-pub type FontType = fonts::Font12x16::<'static, Rgb565>;
+pub type FontType<'a> = fonts::Font12x16::<'a, Rgb565>;
 pub const FONT_WIDTH:  u16 = 12;
 pub const FONT_HEIGHT: u16 = 16;
 

@@ -42,43 +42,6 @@ impl<'a> EmbedRenderContext<'a> {
     }
 }
 
-#[derive(Debug)]
-struct WrappedStatus(Status);
-
-/* ////
-    impl fmt::Display for WrappedStatus {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            write!(f, "Embed error: {:?}", self.0)
-        }
-    }
-
-    impl std::error::Error for WrappedStatus {}
-
-    trait WrapError<T> {
-        fn wrap(self) -> Result<T, Error>;
-    }
-
-    // Discussion question: a blanket impl here should be pretty doable.
-
-    impl<T> WrapError<T> for Result<T, BorrowError> {
-        fn wrap(self) -> Result<T, Error> {
-            self.map_err(|e| {
-                let e: Box<dyn std::error::Error> = Box::new(e);
-                e.into()
-            })
-        }
-    }
-
-    impl<T> WrapError<T> for Result<T, Status> {
-        fn wrap(self) -> Result<T, Error> {
-            self.map_err(|e| {
-                let e: Box<dyn std::error::Error> = Box::new(WrappedStatus(e));
-                e.into()
-            })
-        }
-    }
-*/ ////
-
 impl<'a> RenderContext for EmbedRenderContext<'a> {
     type Brush = brush::Brush;
     type Text = text::EmbedText;
@@ -289,8 +252,8 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
         let stroke = self.convert_brush(&brush);
 
         //  Create text
-        let text = text::FontType
-            ::render_str(&layout.text)
+        let text = text::FontType::<'a>
+            ::render_str(&layout.text.clone())
             .stroke(Some(stroke));
         
         //  Render text to display

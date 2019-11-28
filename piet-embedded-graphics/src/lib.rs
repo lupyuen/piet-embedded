@@ -6,6 +6,7 @@ mod brush;
 mod context;
 ////mod grapheme;
 mod image;
+mod status;
 mod text;
 
 #[cfg(test)]
