@@ -10,14 +10,10 @@ use piet::{
     HitTestPoint, HitTestTextPosition, 
     Text, TextLayout, TextLayoutBuilder,
 };
-use embedded_graphics::{
-    fonts,
-    pixelcolor::Rgb565, 
-};
 
-pub type FontType<'a> = fonts::Font12x16::<'a, Rgb565>;
+////pub type FontType<'a> = fonts::Font12x16::<'a, Rgb565>;
 pub const FONT_WIDTH:  u16 = 12;
-pub const FONT_HEIGHT: u16 = 16;
+////pub const FONT_HEIGHT: u16 = 16;
 
 /// Right now, we don't need any state, as the "toy text API" treats the
 /// access to system font information as a global. This will change.
@@ -56,7 +52,7 @@ impl Text for EmbedText {
     type TextLayout = EmbedTextLayout;
     type TextLayoutBuilder = EmbedTextLayoutBuilder;
 
-    fn new_font_by_name(&mut self, name: &str, size: f64) -> Self::FontBuilder {
+    fn new_font_by_name(&mut self, _name: &str, _size: f64) -> Self::FontBuilder {
         EmbedFontBuilder {
             ////family: name,
             ////size: size.round_into(),
@@ -65,7 +61,7 @@ impl Text for EmbedText {
         }
     }
 
-    fn new_text_layout(&mut self, font: &Self::Font, text: &str) -> Self::TextLayoutBuilder {
+    fn new_text_layout(&mut self, _font: &Self::Font, text: &str) -> Self::TextLayoutBuilder {
         let text_layout = EmbedTextLayout {
             ////font: font.0.clone(),
             text: String::<U20>::from_str(text).expect("text layout fail"),
@@ -109,8 +105,8 @@ impl TextLayout for EmbedTextLayout {
 
     // first assume one line.
     // TODO do with lines
-    fn hit_test_point(&self, point: Point) -> HitTestPoint {
-        return HitTestPoint::default();  ////  Hit test with text not supported
+    fn hit_test_point(&self, _point: Point) -> HitTestPoint {
+        return HitTestPoint::default();  ////  TODO: Hit test with text not supported
 
         /* ////  TODO
         // internal logic is using grapheme clusters, but return the text position associated
@@ -183,8 +179,8 @@ impl TextLayout for EmbedTextLayout {
         */ ////
     }
 
-    fn hit_test_text_position(&self, text_position: usize) -> Option<HitTestTextPosition> {
-        return Some(HitTestTextPosition::default());  ////  Hit test with text not supported
+    fn hit_test_text_position(&self, _text_position: usize) -> Option<HitTestTextPosition> {
+        return Some(HitTestTextPosition::default());  ////  TODO: Hit test with text not supported
 
         /*  ////  TODO
         // Using substrings, but now with unicode grapheme awareness

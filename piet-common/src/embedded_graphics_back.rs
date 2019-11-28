@@ -1,16 +1,13 @@
 //! Support for piet embedded-graphics back-end.
 
 ////use std::marker::PhantomData;
-
-use embedded_graphics::{Context, Format, ImageSurface};
-
-use piet::{ErrorKind, ImageFormat};
+////use piet::{ErrorKind, ImageFormat};
 
 #[doc(hidden)]
 pub use piet_embedded_graphics::*;
 
-/// The `RenderContext` for the EmbeddedGraphics backend, which is selected.
-pub type Piet<'a> = EmbeddedGraphicsRenderContext<'a>;
+/// The `RenderContext` for the Embed backend, which is selected.
+pub type Piet<'a> = EmbedRenderContext<'a>;
 
 /// The associated brush type for this backend.
 ///
@@ -20,36 +17,36 @@ pub type Brush = piet_embedded_graphics::Brush;
 /// The associated text factory for this backend.
 ///
 /// This type matches `RenderContext::Text`
-pub type PietText<'a> = EmbeddedGraphicsText;
+pub type PietText<'a> = EmbedText;
 
 /// The associated font type for this backend.
 ///
 /// This type matches `RenderContext::Text::Font`
-pub type PietFont = EmbeddedGraphicsFont;
+pub type PietFont = EmbedFont;
 
 /// The associated font builder for this backend.
 ///
 /// This type matches `RenderContext::Text::FontBuilder`
-pub type PietFontBuilder<'a> = EmbeddedGraphicsFontBuilder;
+pub type PietFontBuilder<'a> = EmbedFontBuilder;
 
 /// The associated text layout type for this backend.
 ///
 /// This type matches `RenderContext::Text::TextLayout`
-pub type PietTextLayout = EmbeddedGraphicsTextLayout;
+pub type PietTextLayout = EmbedTextLayout;
 
 /// The associated text layout builder for this backend.
 ///
 /// This type matches `RenderContext::Text::TextLayoutBuilder`
-pub type PietTextLayoutBuilder<'a> = EmbeddedGraphicsTextLayoutBuilder;
+pub type PietTextLayoutBuilder<'a> = EmbedTextLayoutBuilder;
 
 /// The associated image type for this backend.
 ///
 /// This type matches `RenderContext::Image`
-pub type Image = ImageSurface;
+////pub type Image = ImageSurface;
 
 /// A struct that can be used to create bitmap render contexts.
 ///
-/// In the case of EmbeddedGraphics, being a software renderer, no state is needed.
+/// In the case of Embed, being a software renderer, no state is needed.
 pub struct Device;
 
 /*
@@ -90,8 +87,8 @@ impl<'a> BitmapTarget<'a> {
     ///
     /// Note: caller is responsible for calling `finish` on the render
     /// context at the end of rendering.
-    pub fn render_context<'b>(&'b mut self) -> EmbeddedGraphicsRenderContext<'b> {
-        EmbeddedGraphicsRenderContext::new(&mut self.cr)
+    pub fn render_context<'b>(&'b mut self) -> EmbedRenderContext<'b> {
+        EmbedRenderContext::new(&mut self.cr)
     }
 
     /// Get raw RGBA pixels from the bitmap.

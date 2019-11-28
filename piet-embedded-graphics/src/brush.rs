@@ -17,7 +17,7 @@ impl<'a> IntoBrush<context::EmbedRenderContext<'a>> for Brush {
         _piet: &mut context::EmbedRenderContext,
         _bbox: impl FnOnce() -> Rect,
     ) -> Brush {
-        *self
+        self.clone()
     }
 }
 

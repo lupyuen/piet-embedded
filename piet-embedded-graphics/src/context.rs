@@ -1,4 +1,4 @@
-use piet::kurbo::{Affine, PathEl, Point, QuadBez, Rect, Shape};
+use piet::kurbo::{Affine, PathEl, Point, Rect, Shape};
 use piet::{
     ////new_error, 
     Color, Error, 
@@ -63,10 +63,8 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
     }
 
     fn clear(&mut self, color: Color) {
-        //  Create black brush
-        let brush = self.solid_brush(
-            Color::from_rgba32_u32(0)  //  Black
-        );
+        //  Create brush
+        let brush = self.solid_brush(color);
         //  Create rectangle to fill the screen
         let shape = Rect::new(0., 0., 
             DISPLAY_WIDTH  as f64 - 1., 
@@ -145,7 +143,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
         */
     }
 
-    fn clip(&mut self, shape: impl Shape) {
+    fn clip(&mut self, _shape: impl Shape) {
         assert!(false, "no clip"); //// TODO
         /*
         self.set_path(shape);
@@ -180,9 +178,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
                     ////self.ctx.line_to(p.x, p.y);
                     last = p;
                 }
-                PathEl::QuadTo(p1, p2) => {
-                    let q = QuadBez::new(last, p1, p2);
-                    let c = q.raise();
+                PathEl::QuadTo(_p1, p2) => {
                     //  TODO: Handle quad
                     //  Draw line from last to p2 with styled stroke
                     let last_coord = Coord::new(last.x as i32, last.y as i32);
@@ -192,11 +188,13 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
                         .stroke(Some(stroke))
                         .stroke_width(width as u8);
                     self.display.draw(line);
+                    ////let q = QuadBez::new(last, p1, p2);
+                    ////let c = q.raise();
                     ////self.ctx
                         ////.curve_to(c.p1.x, c.p1.y, c.p2.x, c.p2.y, p2.x, p2.y);
                     last = p2;
                 }
-                PathEl::CurveTo(p1, p2, p3) => {
+                PathEl::CurveTo(_p1, _p2, p3) => {
                     //  TODO: Handle curve
                     //  Draw line from last to p3 with styled stroke
                     let last_coord = Coord::new(last.x as i32, last.y as i32);
@@ -236,8 +234,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
     }
 
     fn text(&mut self) -> &mut Self::Text {
-        &mut text::EmbedText{}
-        ////&mut self.text
+        &mut self.text
     }
 
     fn draw_text(
@@ -247,14 +244,16 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
         brush: &impl IntoBrush<Self>,
     ) {
         let brush = brush.make_brush(self, || Rect::ZERO);
+        let pos = pos.into();
 
         //  Get stroke color
         let stroke = self.convert_brush(&brush);
 
         //  Create text
-        let text = text::FontType::<'a>
+        let text = embedded_graphics::fonts::Font12x16::<Rgb565>
             ::render_str(&layout.text)
-            .stroke(Some(stroke));
+            .stroke(Some(stroke))
+            .translate(Coord::new(pos.x as i32, pos.y as i32));
         
         //  Render text to display
         self.display.draw(text);
@@ -263,7 +262,6 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
         /*
         self.ctx.set_scaled_font(&layout.font);
         self.set_brush(&brush);
-        let pos = pos.into();
         self.ctx.move_to(pos.x, pos.y);
         self.ctx.show_text(&layout.text);
         */
@@ -291,7 +289,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
         self.status()
     }
 
-    fn transform(&mut self, transform: Affine) {
+    fn transform(&mut self, _transform: Affine) {
         assert!(false, "no transform");  ////  TODO
         ////self.ctx.transform(affine_to_matrix(transform));
     }

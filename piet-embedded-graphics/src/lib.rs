@@ -13,3 +13,11 @@ mod text;
 mod test;
 
 pub use context::EmbedRenderContext;
+pub use brush::Brush;
+pub use text::{
+    EmbedFont,
+    EmbedFontBuilder,
+    EmbedText,
+    EmbedTextLayout,
+    EmbedTextLayoutBuilder,
+};
