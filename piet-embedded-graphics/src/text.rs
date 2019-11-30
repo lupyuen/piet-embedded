@@ -11,9 +11,12 @@ use piet::{
     Text, TextLayout, TextLayoutBuilder,
 };
 
+////TODO: Sync with druid/src/env.rs
 ////pub type FontType<'a> = fonts::Font12x16::<'a, Rgb565>;
-pub const FONT_WIDTH:  u16 = 12;
-////pub const FONT_HEIGHT: u16 = 16;
+pub const FONT_WIDTH:  u16  = 12;
+pub const FONT_HEIGHT: u16  = 16;
+pub const FONT_NAME:   &str = &"Font12x16";
+pub const TEXT_SIZE_NORMAL: f64 = FONT_HEIGHT as f64;
 
 /// Right now, we don't need any state, as the "toy text API" treats the
 /// access to system font information as a global. This will change.
