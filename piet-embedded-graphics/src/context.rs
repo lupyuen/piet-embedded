@@ -1,3 +1,4 @@
+use core::marker::PhantomData; ////
 use piet::kurbo::{Affine, PathEl, Point, Rect, Shape};
 use piet::{
     ////new_error, 
@@ -24,28 +25,36 @@ type Display = st7735_lcd::ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
 const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
+static mut DISPLAY: &mut Display = &mut mynewt::fill_zero!(Display);
 static mut EMBED_TEXT: text::EmbedText = text::EmbedText;
 
-pub struct EmbedRenderContext<'a> {
-    display: &'a mut Display,
-    text: &'a mut text::EmbedText,
+pub fn set_display(display: &'static mut Display) {
+    DISPLAY = display;
 }
 
+pub struct EmbedRenderContext {
+    // display: &'a mut Display,
+    // text: &'a mut text::EmbedText,
+    // phantom: PhantomData<u32 + 'a>,
+}
+
+/*
 impl<'a> EmbedRenderContext<'a> {
     /// Create a new embedded-graphics back-end.
     ///
     /// At the moment, it uses the "toy text API" for text layout, but when
     /// we change to a more sophisticated text layout approach, we'll probably
     /// need a factory for that as an additional argument.
-    pub fn new(display: &mut Display) -> EmbedRenderContext {
+    pub fn new() -> EmbedRenderContext {
         EmbedRenderContext {
-            display,
-            text: unsafe { &mut EMBED_TEXT },
+            // display: unsafe { &mut DISPLAY },
+            // text: unsafe { &mut EMBED_TEXT },
         }
     }
 }
+*/
 
-impl<'a> RenderContext for EmbedRenderContext<'a> {
+impl RenderContext for EmbedRenderContext {
     type Brush = brush::Brush;
     type Text = text::EmbedText;
     type TextLayout = text::EmbedTextLayout;
@@ -129,7 +138,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
         let rect = Rectangle::<Rgb565>
             ::new(left_top, right_btm)
             .fill(Some(fill));
-        self.display.draw(rect);
+        DISPLAY.draw(rect);
 
         ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         ////self.ctx.fill();
@@ -177,7 +186,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
                         ::new(last_coord, p_coord)
                         .stroke(Some(stroke))
                         .stroke_width(width as u8);
-                    self.display.draw(line);
+                    DISPLAY.draw(line);
                     ////self.ctx.line_to(p.x, p.y);
                     last = p;
                 }
@@ -190,7 +199,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
                         ::new(last_coord, p2_coord)
                         .stroke(Some(stroke))
                         .stroke_width(width as u8);
-                    self.display.draw(line);
+                    DISPLAY.draw(line);
                     ////let q = QuadBez::new(last, p1, p2);
                     ////let c = q.raise();
                     ////self.ctx
@@ -206,7 +215,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
                         ::new(last_coord, p3_coord)
                         .stroke(Some(stroke))
                         .stroke_width(width as u8);
-                    self.display.draw(line);
+                    DISPLAY.draw(line);
                     ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                     last = p3;
                 }
@@ -237,7 +246,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
     }
 
     fn text(&mut self) -> &mut Self::Text {
-        &mut self.text
+        &mut EMBED_TEXT
     }
 
     fn draw_text(
@@ -259,7 +268,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
             .translate(Coord::new(pos.x as i32, pos.y as i32));
         
         //  Render text to display
-        self.display.draw(text);
+        DISPLAY.draw(text);
 
         // TODO: bounding box for text
         /*
@@ -316,7 +325,7 @@ impl<'a> RenderContext for EmbedRenderContext<'a> {
     }
 */
 
-impl<'a> EmbedRenderContext<'a> {
+impl EmbedRenderContext {
     /// Get the source pattern for the brush
     fn convert_brush(&mut self, brush: &brush::Brush) -> Rgb565 {
         match *brush {

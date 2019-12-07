@@ -11,7 +11,7 @@ pub enum Brush {
     ////Radial(embedded_graphics::RadialGradient),
 }
 
-impl<'a> IntoBrush<context::EmbedRenderContext<'a>> for Brush {
+impl<'a> IntoBrush<context::EmbedRenderContext> for Brush {
     fn make_brush<'b>(
         &'b self,
         _piet: &mut context::EmbedRenderContext,

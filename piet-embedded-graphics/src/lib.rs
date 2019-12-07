@@ -1,6 +1,7 @@
 //! The embedded-graphics backend for the Piet 2D graphics abstraction.
 
 #![no_std] ////
+#![feature(const_transmute)] ////
 
 mod brush;
 mod context;
