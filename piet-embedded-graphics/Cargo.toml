@@ -12,8 +12,10 @@ categories = ["rendering::graphics-api"]
 [dependencies]
 piet                 = { version = "0.0.7", path = "../piet" }
 unicode-segmentation = "1.3.0"
-embedded-graphics    = "0.5.2"
 heapless             = "0.5.1" #### `static` friendly data structures that don't require dynamic memory allocation
+embedded-graphics    = "0.5.2"
+st7735-lcd           = { version = "0.6.1", features = [ "graphics" ] }
+mynewt = { path = "../../stm32bluepill-mynewt-sensor/rust/mynewt" } # Import mynewt library
 
 [dev-dependencies]
 piet-test = { version = "0.0.7", path = "../piet-test" }

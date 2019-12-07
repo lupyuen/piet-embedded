@@ -18,8 +18,9 @@ use embedded_graphics::{
 };
 use crate::{ brush, text };
 
-//  TODO: Change to generic display
-type Display = embedded_graphics::mock_display::MockDisplay<Rgb565>;
+////  TODO: Change to generic display
+type Display = st7735_lcd::ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
+//  type Display = embedded_graphics::mock_display::MockDisplay<Rgb565>;
 const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
