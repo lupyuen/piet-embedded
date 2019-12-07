@@ -122,7 +122,7 @@ pub fn show_touch(x: u16, y: u16) -> MynewtResult<()> {
 }
 
 /// Render the ST7789 display connected to SPI port 0. `start_display()` must have been called earlier.
-pub fn test() -> MynewtResult<()> {
+pub fn test_display() -> MynewtResult<()> {
     //  Create circle
     let circle = Circle::<Rgb565>
         ::new(Coord::new(40, 40), 40)
