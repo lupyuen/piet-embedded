@@ -18,6 +18,7 @@ use embedded_graphics::{
     Drawing, 
 };
 use crate::{ brush, text };
+use super::display;
 
 ////  TODO: Change to generic display
 type Display = st7735_lcd::ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
@@ -25,12 +26,7 @@ type Display = st7735_lcd::ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
 const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
-static mut DISPLAY: &mut Display = &mut mynewt::fill_zero!(Display);
 static mut EMBED_TEXT: text::EmbedText = text::EmbedText;
-
-pub fn set_display(display: &'static mut Display) {
-    DISPLAY = display;
-}
 
 pub struct EmbedRenderContext {
     // display: &'a mut Display,
@@ -138,7 +134,7 @@ impl RenderContext for EmbedRenderContext {
         let rect = Rectangle::<Rgb565>
             ::new(left_top, right_btm)
             .fill(Some(fill));
-        DISPLAY.draw(rect);
+        unsafe { display::DISPLAY.draw(rect); }
 
         ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         ////self.ctx.fill();
@@ -186,7 +182,7 @@ impl RenderContext for EmbedRenderContext {
                         ::new(last_coord, p_coord)
                         .stroke(Some(stroke))
                         .stroke_width(width as u8);
-                    DISPLAY.draw(line);
+                    unsafe { display::DISPLAY.draw(line); }
                     ////self.ctx.line_to(p.x, p.y);
                     last = p;
                 }
@@ -199,7 +195,7 @@ impl RenderContext for EmbedRenderContext {
                         ::new(last_coord, p2_coord)
                         .stroke(Some(stroke))
                         .stroke_width(width as u8);
-                    DISPLAY.draw(line);
+                    unsafe { display::DISPLAY.draw(line); }
                     ////let q = QuadBez::new(last, p1, p2);
                     ////let c = q.raise();
                     ////self.ctx
@@ -215,7 +211,7 @@ impl RenderContext for EmbedRenderContext {
                         ::new(last_coord, p3_coord)
                         .stroke(Some(stroke))
                         .stroke_width(width as u8);
-                    DISPLAY.draw(line);
+                    unsafe { display::DISPLAY.draw(line); }
                     ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                     last = p3;
                 }
@@ -246,7 +242,7 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn text(&mut self) -> &mut Self::Text {
-        &mut EMBED_TEXT
+        unsafe { &mut EMBED_TEXT }
     }
 
     fn draw_text(
@@ -268,7 +264,7 @@ impl RenderContext for EmbedRenderContext {
             .translate(Coord::new(pos.x as i32, pos.y as i32));
         
         //  Render text to display
-        DISPLAY.draw(text);
+        unsafe { display::DISPLAY.draw(text); }
 
         // TODO: bounding box for text
         /*

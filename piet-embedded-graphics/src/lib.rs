@@ -5,6 +5,7 @@
 
 mod brush;
 mod context;
+mod display;
 ////mod grapheme;
 mod image;
 mod status;

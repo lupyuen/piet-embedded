@@ -7,7 +7,7 @@
 pub use piet_embedded_graphics::*;
 
 /// The `RenderContext` for the Embed backend, which is selected.
-pub type Piet<'a> = EmbedRenderContext<'a>;
+pub type Piet = EmbedRenderContext;
 
 /// The associated brush type for this backend.
 ///
