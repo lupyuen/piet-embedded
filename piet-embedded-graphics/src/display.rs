@@ -77,16 +77,11 @@ pub fn start_display() -> MynewtResult<()> {
         true         //  Whether the colours are inverted (true) or not (false)
     ) };
 
-    //  Init display driver and draw the background
-    let background = Rectangle::<Rgb565>
-        ::new(Coord::new(0, 0), Coord::new(240, 240))
-        .fill(Some(Rgb565::from((0x0, 0x0, 0x0))));  //  Black
+    //  Init display driver
     let mut delay = mynewt::Delay::new();
     unsafe {
         DISPLAY.init(&mut delay) ? ;
         DISPLAY.set_orientation(&Orientation::Landscape) ? ;
-        //  DISPLAY.set_offset(1, 25);
-        ////  DISPLAY.draw(background);
     }
     Ok(())
 }
@@ -104,13 +99,13 @@ pub fn show_touch(x: u16, y: u16) -> MynewtResult<()> {
     //  Prepare the text for rendering
     let text_x = fonts::Font12x16::<Rgb565>
         ::render_str(&buf_x)
-        .stroke(Some(Rgb565::from((0xff, 0xff, 0xff))))  //  White
-        .fill(Some(Rgb565::from((0x00, 0x00, 0x00))))    //  Black
+        .stroke(Some(Rgb565::from(( 0xff, 0xff, 0xff ))))  //  White
+        .fill(Some(Rgb565::from((   0x00, 0x00, 0x00 ))))  //  Black
         .translate(Coord::new(40, 100));
     let text_y = fonts::Font12x16::<Rgb565>
         ::render_str(&buf_y)
-        .stroke(Some(Rgb565::from((0xff, 0xff, 0xff))))  //  White
-        .fill(Some(Rgb565::from((0x00, 0x00, 0x00))))    //  Black
+        .stroke(Some(Rgb565::from(( 0xff, 0xff, 0xff ))))  //  White
+        .fill(Some(Rgb565::from((   0x00, 0x00, 0x00 ))))  //  Black
         .translate(Coord::new(40, 130));
         
     //  Render text to display
@@ -123,20 +118,26 @@ pub fn show_touch(x: u16, y: u16) -> MynewtResult<()> {
 
 /// Render the ST7789 display connected to SPI port 0. `start_display()` must have been called earlier.
 pub fn test_display() -> MynewtResult<()> {
+    //  Create black background
+    let background = Rectangle::<Rgb565>
+        ::new(Coord::new(0, 0), Coord::new(240, 240))
+        .fill(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))));  //  Black
+
     //  Create circle
     let circle = Circle::<Rgb565>
         ::new(Coord::new(40, 40), 40)
-        .fill(Some(Rgb565::from((0xff, 0x00, 0xff))));  //  Magenta
+        .fill(Some(Rgb565::from(( 0xff, 0x00, 0xff ))));  //  Magenta
 
     //  Create text
     let text = fonts::Font12x16::<Rgb565>
         ::render_str("I AM RUSTY BEACON")
-        .stroke(Some(Rgb565::from((0x00, 0x00, 0x00))))  //  Black
-        .fill(Some(Rgb565::from((0xff, 0xff, 0x00))))    //  Yellow
+        .stroke(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))))  //  Black
+        .fill(Some(Rgb565::from((   0xff, 0xff, 0x00 ))))  //  Yellow
         .translate(Coord::new(20, 16));
 
-    //  Render circle and text to display
+    //  Render background, circle and text to display
     unsafe {
+        DISPLAY.draw(background);
         DISPLAY.draw(circle);
         DISPLAY.draw(text);    
     }
