@@ -54,3 +54,4 @@ mod backend;
 mod backend; ////
 
 pub use backend::*;
+pub use backend::{ start_display, show_touch }; ////
