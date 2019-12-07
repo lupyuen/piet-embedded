@@ -24,9 +24,11 @@ type Display = st7735_lcd::ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
 const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
+static mut EMBED_TEXT: text::EmbedText = text::EmbedText;
+
 pub struct EmbedRenderContext<'a> {
     display: &'a mut Display,
-    text: text::EmbedText,
+    text: &'a mut text::EmbedText,
 }
 
 impl<'a> EmbedRenderContext<'a> {
@@ -38,7 +40,7 @@ impl<'a> EmbedRenderContext<'a> {
     pub fn new(display: &mut Display) -> EmbedRenderContext {
         EmbedRenderContext {
             display,
-            text: text::EmbedText,
+            text: unsafe { &mut EMBED_TEXT },
         }
     }
 }
