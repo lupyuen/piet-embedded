@@ -16,6 +16,7 @@ use embedded_graphics::{
     pixelcolor::Rgb565, 
     Drawing, 
 };
+use mynewt::sys::console;
 use crate::{ brush, text };
 use super::display;
 
@@ -23,6 +24,12 @@ const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
 static mut EMBED_TEXT: text::EmbedText = text::EmbedText;
+
+/// Maximum number of transforms supported
+type MaxTransforms = heapless::consts::U10;
+/// Stack of transforms to be applied to the current render
+static mut TRANSFORM_STACK: heapless::Vec<Point, MaxTransforms> = 
+    heapless::Vec(heapless::i::Vec::new());
 
 pub struct EmbedRenderContext {
     // display: &'a mut Display,
@@ -148,7 +155,7 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn clip(&mut self, _shape: impl Shape) {
-        mynewt::sys::console::print("no clip\n");  ////  TODO
+        console::print("no clip\n");  ////  TODO
         /*
         self.set_path(shape);
         self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
@@ -257,6 +264,7 @@ impl RenderContext for EmbedRenderContext {
         let text = embedded_graphics::fonts::Font12x16::<Rgb565>
             ::render_str(&layout.text)
             .stroke(Some(stroke))
+            .fill(None)
             .translate(Coord::new(pos.x as i32, pos.y as i32));
         
         //  Render text to display
@@ -272,21 +280,16 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn save(&mut self) -> Result<(), Error> {
-        mynewt::sys::console::print("no save\n");  ////  TODO
+        console::print("save\n");  ////  TODO
+        TRANSFORM_STACK.push(Point::ZERO)
+            .expect("transform stack overflow");
         Ok(())
-        /*
-        self.ctx.save();
-        self.status()
-        */
     }
 
     fn restore(&mut self) -> Result<(), Error> {
-        mynewt::sys::console::print("no restore\n");  ////  TODO
+        console::print("restore\n");  ////  TODO
+        TRANSFORM_STACK.pop();
         Ok(())
-        /*
-        self.ctx.restore();
-        self.status()
-        */
     }
 
     fn finish(&mut self) -> Result<(), Error> {
@@ -294,8 +297,22 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn transform(&mut self, _transform: Affine) {
-        mynewt::sys::console::print("no transform\n");  ////  TODO
-        ////self.ctx.transform(affine_to_matrix(transform));
+        console::print("transform ");  ////  TODO
+        for f in &_transform.0 {
+            console::printint(*f as i32);            
+            console::print(", ");            
+        }
+        console::print("\n"); console::flush();            
+
+        let mut point = TRANSFORM_STACK.pop()
+            .expect("transform stack empty");
+        point.x += &_transform.0[4];
+        point.y += &_transform.0[5];
+        TRANSFORM_STACK.push(point)
+            .expect("never");
+
+        cortex_m::asm::bkpt(); ////
+        ////self.ctx.transform(affine_to_matrix(transform));        
     }
 }
 

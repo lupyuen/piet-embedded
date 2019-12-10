@@ -18,6 +18,8 @@ embedded-hal         = "0.2.3"
 st7735-lcd           = { version = "0.6.1", features = [ "graphics" ] }
 arrayvec             = { version = "0.5.1", default-features = false }
 mynewt = { path = "../../stm32bluepill-mynewt-sensor/rust/mynewt" } # Import mynewt library
+cortex-m             = "0.6.1" ####
+cortex-m-rt          = "0.6.10" ####
 
 [dev-dependencies]
 piet-test = { version = "0.0.7", path = "../piet-test" }
