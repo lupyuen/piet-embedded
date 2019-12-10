@@ -281,14 +281,19 @@ impl RenderContext for EmbedRenderContext {
 
     fn save(&mut self) -> Result<(), Error> {
         console::print("save\n");  ////  TODO
-        TRANSFORM_STACK.push(Point::ZERO)
-            .expect("transform stack overflow");
+        unsafe {
+            TRANSFORM_STACK.push(Point::ZERO)
+                .expect("transform stack overflow");
+        }
         Ok(())
     }
 
     fn restore(&mut self) -> Result<(), Error> {
         console::print("restore\n");  ////  TODO
-        TRANSFORM_STACK.pop();
+        unsafe { 
+            TRANSFORM_STACK.pop()
+                .expect("transform stack empty"); 
+        }
         Ok(())
     }
 
@@ -304,12 +309,14 @@ impl RenderContext for EmbedRenderContext {
         }
         console::print("\n"); console::flush();            
 
-        let mut point = TRANSFORM_STACK.pop()
-            .expect("transform stack empty");
-        point.x += &_transform.0[4];
-        point.y += &_transform.0[5];
-        TRANSFORM_STACK.push(point)
-            .expect("never");
+        unsafe {
+            let mut point = TRANSFORM_STACK.pop()
+                .expect("transform stack empty");
+            point.x += &_transform.0[4];
+            point.y += &_transform.0[5];
+            TRANSFORM_STACK.push(point)
+                .expect("never");
+        }
 
         cortex_m::asm::bkpt(); ////
         ////self.ctx.transform(affine_to_matrix(transform));        
