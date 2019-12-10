@@ -31,6 +31,17 @@ type MaxTransforms = heapless::consts::U10;
 static mut TRANSFORM_STACK: heapless::Vec<Point, MaxTransforms> = 
     heapless::Vec(heapless::i::Vec::new());
 
+fn get_transform_stack() -> Coord {
+    let mut result = Point::ZERO;
+    unsafe {
+        for p in &mut TRANSFORM_STACK {
+            result.x += p.x;
+            result.y += p.y;
+        }    
+    }
+    Coord::new(result.x as i32, result.y as i32)
+}
+
 pub struct EmbedRenderContext {
     // display: &'a mut Display,
     // text: &'a mut text::EmbedText,
@@ -136,7 +147,9 @@ impl RenderContext for EmbedRenderContext {
         //  Create rectangle with fill
         let rect = Rectangle::<Rgb565>
             ::new(left_top, right_btm)
-            .fill(Some(fill));
+            .fill(Some(fill))
+            .translate(get_transform_stack())
+            ;
         unsafe { display::DISPLAY.draw(rect); }
 
         ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
@@ -184,7 +197,9 @@ impl RenderContext for EmbedRenderContext {
                     let line = Line::<Rgb565>
                         ::new(last_coord, p_coord)
                         .stroke(Some(stroke))
-                        .stroke_width(width as u8);
+                        .stroke_width(width as u8)
+                        .translate(get_transform_stack())
+                        ;
                     unsafe { display::DISPLAY.draw(line); }
                     ////self.ctx.line_to(p.x, p.y);
                     last = p;
@@ -197,7 +212,9 @@ impl RenderContext for EmbedRenderContext {
                     let line = Line::<Rgb565>
                         ::new(last_coord, p2_coord)
                         .stroke(Some(stroke))
-                        .stroke_width(width as u8);
+                        .stroke_width(width as u8)
+                        .translate(get_transform_stack())
+                        ;
                     unsafe { display::DISPLAY.draw(line); }
                     ////let q = QuadBez::new(last, p1, p2);
                     ////let c = q.raise();
@@ -213,7 +230,9 @@ impl RenderContext for EmbedRenderContext {
                     let line = Line::<Rgb565>
                         ::new(last_coord, p3_coord)
                         .stroke(Some(stroke))
-                        .stroke_width(width as u8);
+                        .stroke_width(width as u8)
+                        .translate(get_transform_stack())
+                        ;
                     unsafe { display::DISPLAY.draw(line); }
                     ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                     last = p3;
@@ -265,7 +284,9 @@ impl RenderContext for EmbedRenderContext {
             ::render_str(&layout.text)
             .stroke(Some(stroke))
             .fill(None)
-            .translate(Coord::new(pos.x as i32, pos.y as i32));
+            .translate(Coord::new(pos.x as i32, pos.y as i32))
+            .translate(get_transform_stack())
+            ;
         
         //  Render text to display
         unsafe { display::DISPLAY.draw(text); }
