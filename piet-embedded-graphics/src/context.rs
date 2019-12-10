@@ -1,4 +1,3 @@
-use core::marker::PhantomData; ////
 use piet::kurbo::{Affine, PathEl, Point, Rect, Shape};
 use piet::{
     ////new_error, 
@@ -20,9 +19,6 @@ use embedded_graphics::{
 use crate::{ brush, text };
 use super::display;
 
-////  TODO: Change to generic display
-type Display = st7735_lcd::ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
-//  type Display = embedded_graphics::mock_display::MockDisplay<Rgb565>;
 const DISPLAY_WIDTH:  u16 = 240;  //  For PineTime Display
 const DISPLAY_HEIGHT: u16 = 240;  //  For PineTime Display
 
@@ -152,7 +148,7 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn clip(&mut self, _shape: impl Shape) {
-        assert!(false, "no clip"); //// TODO
+        mynewt::sys::console::print("no clip\n");  ////  TODO
         /*
         self.set_path(shape);
         self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
@@ -276,7 +272,7 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn save(&mut self) -> Result<(), Error> {
-        assert!(false, "no save");  ////  TODO
+        mynewt::sys::console::print("no save\n");  ////  TODO
         Ok(())
         /*
         self.ctx.save();
@@ -285,7 +281,7 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn restore(&mut self) -> Result<(), Error> {
-        assert!(false, "no restore");  ////  TODO
+        mynewt::sys::console::print("no restore\n");  ////  TODO
         Ok(())
         /*
         self.ctx.restore();
@@ -298,7 +294,7 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn transform(&mut self, _transform: Affine) {
-        assert!(false, "no transform");  ////  TODO
+        mynewt::sys::console::print("no transform\n");  ////  TODO
         ////self.ctx.transform(affine_to_matrix(transform));
     }
 }
