@@ -140,7 +140,7 @@ impl RenderContext for EmbedRenderContext {
             .fill(Some(fill))
             .translate(get_transform_stack())
             ;
-        unsafe { display::DISPLAY.draw(rect); }
+        ////unsafe { display::DISPLAY.draw(rect); }
 
         ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         ////self.ctx.fill();
@@ -279,7 +279,7 @@ impl RenderContext for EmbedRenderContext {
             ;
         
         //  Render text to display
-        ////unsafe { display::DISPLAY.draw(text); }
+        unsafe { display::DISPLAY.draw(text); }
 
         // TODO: bounding box for text
         /*
