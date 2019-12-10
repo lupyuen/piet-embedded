@@ -93,16 +93,6 @@ impl RenderContext for EmbedRenderContext {
             DISPLAY_HEIGHT as f64 - 1.);
         //  Fill the screen
         self.fill(shape, &brush);
-
-        /* ////
-        let rgba = color.as_rgba_u32();
-        self.ctx.set_source_rgb(
-            byte_to_frac(rgba >> 24),
-            byte_to_frac(rgba >> 16),
-            byte_to_frac(rgba >> 8),
-        );
-        self.ctx.paint();
-        */ ////
     }
 
     fn solid_brush(&mut self, color: Color) -> brush::Brush {
@@ -289,7 +279,7 @@ impl RenderContext for EmbedRenderContext {
             ;
         
         //  Render text to display
-        unsafe { display::DISPLAY.draw(text); }
+        ////unsafe { display::DISPLAY.draw(text); }
 
         // TODO: bounding box for text
         /*
@@ -339,7 +329,7 @@ impl RenderContext for EmbedRenderContext {
                 .expect("never");
         }
 
-        cortex_m::asm::bkpt(); ////
+        //cortex_m::asm::bkpt(); ////
         ////self.ctx.transform(affine_to_matrix(transform));        
     }
 }
