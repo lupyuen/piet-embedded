@@ -173,11 +173,13 @@ impl RenderContext for EmbedRenderContext {
         let stroke = self.convert_brush(&brush);
 
         //  Draw a line for each segment of the Bezier path
+        let mut first: Option<Point> = None;
         let mut last = Point::ZERO;
         for el in shape.to_bez_path(0.1) {  //  Previously 1e-3
             match el {
                 PathEl::MoveTo(p) => {
                     ////self.ctx.move_to(p.x, p.y);
+                    if (first.is_none()) { first = Some(p); }
                     last = p;
                 }
                 PathEl::LineTo(p) => {
@@ -192,9 +194,10 @@ impl RenderContext for EmbedRenderContext {
                         ;
                     unsafe { display::DISPLAY.draw(line); }
                     ////self.ctx.line_to(p.x, p.y);
+                    if (first.is_none()) { first = Some(p); }
                     last = p;
                 }
-                PathEl::QuadTo(_p1, p2) => {
+                PathEl::QuadTo(p1, p2) => {
                     //  TODO: Handle quad
                     //  Draw line from last to p2 with styled stroke
                     let last_coord = Coord::new(last.x as i32, last.y as i32);
@@ -210,9 +213,10 @@ impl RenderContext for EmbedRenderContext {
                     ////let c = q.raise();
                     ////self.ctx
                         ////.curve_to(c.p1.x, c.p1.y, c.p2.x, c.p2.y, p2.x, p2.y);
+                    if (first.is_none()) { first = Some(p1); }
                     last = p2;
                 }
-                PathEl::CurveTo(_p1, _p2, p3) => {
+                PathEl::CurveTo(p1, _p2, p3) => {
                     //  TODO: Handle curve
                     //  Draw line from last to p3 with styled stroke
                     let last_coord = Coord::new(last.x as i32, last.y as i32);
@@ -225,9 +229,20 @@ impl RenderContext for EmbedRenderContext {
                         ;
                     unsafe { display::DISPLAY.draw(line); }
                     ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+                    if (first.is_none()) { first = Some(p1); }
                     last = p3;
                 }
                 PathEl::ClosePath => {
+                    let first = first.expect("close path fail");
+                    let last_coord = Coord::new(last.x as i32, last.y as i32);
+                    let first_coord = Coord::new(first.x as i32, first.y as i32);
+                    let line = Line::<Rgb565>
+                        ::new(last_coord, first_coord)
+                        .stroke(Some(stroke))
+                        .stroke_width(width as u8)
+                        .translate(get_transform_stack())
+                        ;
+                    unsafe { display::DISPLAY.draw(line); }
                     ////self.ctx.close_path()
                 }
             }
