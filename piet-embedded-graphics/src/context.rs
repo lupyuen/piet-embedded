@@ -92,7 +92,7 @@ impl RenderContext for EmbedRenderContext {
             DISPLAY_WIDTH  as f64 - 1., 
             DISPLAY_HEIGHT as f64 - 1.);
         //  Fill the screen
-        self.fill(shape, &brush);
+        ////self.fill(shape, &brush);
     }
 
     fn solid_brush(&mut self, color: Color) -> brush::Brush {
@@ -140,7 +140,7 @@ impl RenderContext for EmbedRenderContext {
             .fill(Some(fill))
             .translate(get_transform_stack())
             ;
-        ////unsafe { display::DISPLAY.draw(rect); }
+        unsafe { display::DISPLAY.draw(rect); }
 
         ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         ////self.ctx.fill();
@@ -288,7 +288,7 @@ impl RenderContext for EmbedRenderContext {
         let text = embedded_graphics::fonts::Font12x16::<Rgb565>
             ::render_str(&layout.text)
             .stroke(Some(stroke))
-            .fill(None)
+            .fill(Some(Rgb565::from((   0x00, 0x00, 0x00 ))))  //  TODO: Remove black background fill
             .translate(Coord::new(pos.x as i32, pos.y as i32))
             .translate(get_transform_stack())
             ;
@@ -306,7 +306,6 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn save(&mut self) -> Result<(), Error> {
-        console::print("save\n");  ////  TODO
         unsafe {
             TRANSFORM_STACK.push(Point::ZERO)
                 .expect("transform stack overflow");
@@ -315,7 +314,6 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn restore(&mut self) -> Result<(), Error> {
-        console::print("restore\n");  ////  TODO
         unsafe { 
             TRANSFORM_STACK.pop()
                 .expect("transform stack empty"); 
@@ -333,7 +331,7 @@ impl RenderContext for EmbedRenderContext {
             console::printint(*f as i32);            
             console::print(", ");            
         }
-        console::print("\n"); console::flush();            
+        console::print("\n"); // console::flush();            
 
         unsafe {
             let mut point = TRANSFORM_STACK.pop()
