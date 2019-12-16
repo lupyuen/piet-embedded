@@ -151,3 +151,38 @@ type Display = ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
 /// GPIO Pin for Display Backlight
 static mut BACKLIGHT_HIGH: mynewt::GPIO = fill_zero!(MynewtGPIO);  //  Will be created in `start_display()`
 type MynewtGPIO = mynewt::GPIO;
+
+/* Non-Blocking SPI Transfer in Mynewt OS
+
+    //  The spi txrx callback
+    struct spi_cb_arg {
+        int transfers;
+        int txlen;
+        uint32_t tx_rx_bytes;
+    };
+    struct spi_cb_arg spi_cb_obj;
+    void *spi_cb_arg;
+    ...
+    void spi_irqm_handler(void *arg, int len) {
+        int i;
+        struct spi_cb_arg *cb;
+        assert(arg == spi_cb_arg);
+        if (spi_cb_arg) {
+            cb = (struct spi_cb_arg *)arg;
+            assert(len == cb->txlen);
+            ++cb->transfers;
+        }
+        ++g_spi_xfr_num;
+    }
+    ...
+    //  Non-blocking SPI transfer
+    hal_spi_disable(SPI_M_NUM);
+    spi_cb_arg = &spi_cb_obj;
+    spi_cb_obj.txlen = 32;
+    hal_spi_set_txrx_cb(SPI_M_NUM, spi_irqm_handler, spi_cb_arg);
+    hal_spi_enable(SPI_M_NUM);
+    ...
+    rc = hal_spi_txrx_noblock(SPI_M_NUM, g_spi_tx_buf, g_spi_rx_buf,
+                                spi_cb_obj.txlen);
+    assert(!rc);
+*/
