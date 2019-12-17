@@ -120,7 +120,7 @@ pub fn show_touch(x: u16, y: u16) -> MynewtResult<()> {
 pub fn test_display() -> MynewtResult<()> {
     //  Create black background
     let background = Rectangle::<Rgb565>
-        ::new(Coord::new(0, 0), Coord::new(240, 240))
+        ::new(Coord::new(0, 0), Coord::new(239, 239))
         .fill(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))));  //  Black
 
     //  Create circle
@@ -166,7 +166,7 @@ type MynewtGPIO = mynewt::GPIO;
     void spi_irqm_handler(void *arg, int len) {
         int i;
         struct spi_cb_arg *cb;
-        assert(arg == spi_cb_arg);
+        hal_gpio_write(SPI_SS_PIN, 1);
         if (spi_cb_arg) {
             cb = (struct spi_cb_arg *)arg;
             assert(len == cb->txlen);
@@ -182,6 +182,7 @@ type MynewtGPIO = mynewt::GPIO;
     hal_spi_set_txrx_cb(SPI_M_NUM, spi_irqm_handler, spi_cb_arg);
     hal_spi_enable(SPI_M_NUM);
     ...
+    hal_gpio_write(SPI_SS_PIN, 0);
     rc = hal_spi_txrx_noblock(SPI_M_NUM, g_spi_tx_buf, g_spi_rx_buf,
                                 spi_cb_obj.txlen);
     assert(!rc);
