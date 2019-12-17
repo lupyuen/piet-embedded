@@ -37,6 +37,12 @@ LCD_BACKLIGHT_{LOW,MID,HIGH} (P0.14, 22, 23)	Backlight (active low)
 - LCD_DISPLAY_* is used to enable the backlight. Set at least one to low to see anything on the screen.
 - Use SPI at 8MHz (the fastest clock available on the nRF52832) because otherwise refreshing will be super slow. */
 
+const DISPLAY_SPI: i32  =  0;  //  Mynewt SPI port 0
+const DISPLAY_CS: i32   = 25;  //  LCD_CS (P0.25): Chip select
+const DISPLAY_DC: i32   = 18;  //  LCD_RS (P0.18): Clock/data pin (CD)
+const DISPLAY_RST: i32  = 26;  //  LCD_RESET (P0.26): Display reset
+const DISPLAY_HIGH: i32 = 23;  //  LCD_BACKLIGHT_{LOW,MID,HIGH} (P0.14, 22, 23): Backlight (active low)
+
 /// SPI settings for ST7789 display controller
 static mut SPI_SETTINGS: hal::hal_spi_settings = hal::hal_spi_settings {
     data_order: hal::HAL_SPI_MSB_FIRST as u8,
@@ -54,17 +60,17 @@ pub fn start_display() -> MynewtResult<()> {
 
     //  Init SPI port and GPIO pins
     spi_port.init(
-        0,   //  Mynewt SPI port 0
-        25,  //  LCD_CS (P0.25): Chip select
+        DISPLAY_SPI, //  Mynewt SPI port 0
+        DISPLAY_CS,  //  LCD_CS (P0.25): Chip select
         unsafe { &mut SPI_SETTINGS }
     ) ? ;
-    dc_gpio.init(18) ? ;   //  LCD_RS (P0.18): Clock/data pin (CD)
-    rst_gpio.init(26) ? ;  //  LCD_RESET (P0.26): Display reset
+    dc_gpio.init(DISPLAY_DC) ? ;    //  LCD_RS (P0.18): Clock/data pin (CD)
+    rst_gpio.init(DISPLAY_RST) ? ;  //  LCD_RESET (P0.26): Display reset
 
     //  Switch on the backlight
     unsafe {
         BACKLIGHT_HIGH = mynewt::GPIO::new();
-        BACKLIGHT_HIGH.init(23) ? ;  //  LCD_BACKLIGHT_{LOW,MID,HIGH} (P0.14, 22, 23): Backlight (active low)
+        BACKLIGHT_HIGH.init(DISPLAY_HIGH) ? ;  //  LCD_BACKLIGHT_{LOW,MID,HIGH} (P0.14, 22, 23): Backlight (active low)
         BACKLIGHT_HIGH.set_low() ? ;    
     }
     
@@ -151,39 +157,3 @@ type Display = ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
 /// GPIO Pin for Display Backlight
 static mut BACKLIGHT_HIGH: mynewt::GPIO = fill_zero!(MynewtGPIO);  //  Will be created in `start_display()`
 type MynewtGPIO = mynewt::GPIO;
-
-/* Non-Blocking SPI Transfer in Mynewt OS
-
-    //  The spi txrx callback
-    struct spi_cb_arg {
-        int transfers;
-        int txlen;
-        uint32_t tx_rx_bytes;
-    };
-    struct spi_cb_arg spi_cb_obj;
-    void *spi_cb_arg;
-    ...
-    void spi_irqm_handler(void *arg, int len) {
-        int i;
-        struct spi_cb_arg *cb;
-        hal_gpio_write(SPI_SS_PIN, 1);
-        if (spi_cb_arg) {
-            cb = (struct spi_cb_arg *)arg;
-            assert(len == cb->txlen);
-            ++cb->transfers;
-        }
-        ++g_spi_xfr_num;
-    }
-    ...
-    //  Non-blocking SPI transfer
-    hal_spi_disable(SPI_M_NUM);
-    spi_cb_arg = &spi_cb_obj;
-    spi_cb_obj.txlen = 32;
-    hal_spi_set_txrx_cb(SPI_M_NUM, spi_irqm_handler, spi_cb_arg);
-    hal_spi_enable(SPI_M_NUM);
-    ...
-    hal_gpio_write(SPI_SS_PIN, 0);
-    rc = hal_spi_txrx_noblock(SPI_M_NUM, g_spi_tx_buf, g_spi_rx_buf,
-                                spi_cb_obj.txlen);
-    assert(!rc);
-*/
