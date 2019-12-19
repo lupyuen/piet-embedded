@@ -1,12 +1,12 @@
 //! The embedded-graphics backend for the Piet 2D graphics abstraction.
 
-#![no_std] ////
-#![feature(const_transmute)] ////
+#![no_std]
+#![feature(const_transmute)]
 
+mod batch;
 mod brush;
 mod context;
 mod display;
-////mod grapheme;
 mod image;
 mod status;
 mod text;
@@ -23,4 +23,4 @@ pub use text::{
     EmbedTextLayout,
     EmbedTextLayoutBuilder,
 };
-pub use display::{ start_display, test_display, show_touch }; ////
+pub use display::{ start_display, test_display, show_touch };
