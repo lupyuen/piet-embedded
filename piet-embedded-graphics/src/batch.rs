@@ -68,7 +68,7 @@ pub struct PixelBlock {
 }
 
 /// Draw the pixels as blocks of contiguous pixel rows
-fn draw_blocks<SPI, DC, RST, T>(display: &mut ST7735<SPI, DC, RST>, item_pixels: T) -> Result<(),()>
+pub fn draw_blocks<SPI, DC, RST, T>(display: &mut ST7735<SPI, DC, RST>, item_pixels: T) -> Result<(),()>
 where
     SPI: spi::Write<u8>,
     DC: OutputPin,
