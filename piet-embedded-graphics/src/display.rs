@@ -127,7 +127,7 @@ pub fn test_display() -> MynewtResult<()> {
     //  Create black background
     let background = Rectangle::<Rgb565>
         ::new(Coord::new(0, 0), Coord::new(239, 239))
-        .fill(Some(Rgb565::from(( 0x00, 0xff, 0x00 ))));  //  Black
+        .fill(Some(Rgb565::from(( 0x80, 0xff, 0x00 ))));  //  Black
 
     //  Create circle
     let circle = Circle::<Rgb565>
