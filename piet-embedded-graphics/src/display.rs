@@ -143,11 +143,11 @@ pub fn test_display() -> MynewtResult<()> {
 
     //  Render background, circle and text to display
     unsafe {
-        DISPLAY.draw(text);    
+        //DISPLAY.draw(text);    
         super::batch::draw_blocks(&mut DISPLAY, background)
             .expect("draw blocks fail");
         //DISPLAY.draw(background);
-        ////DISPLAY.draw(circle);
+        //DISPLAY.draw(circle);
     }
     Ok(())
 }
