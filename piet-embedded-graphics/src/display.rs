@@ -127,7 +127,7 @@ pub fn test_display() -> MynewtResult<()> {
     //  Create black background
     let background = Rectangle::<Rgb565>
         ::new(Coord::new(0, 0), Coord::new(239, 239))
-        .fill(Some(Rgb565::from(( 0xff, 0xff, 0x00 ))));  //  Black
+        .fill(Some(Rgb565::from(( 0x00, 0xff, 0x00 ))));  //  Black
 
     //  Create circle
     let circle = Circle::<Rgb565>
@@ -136,18 +136,18 @@ pub fn test_display() -> MynewtResult<()> {
 
     //  Create text
     let text = fonts::Font12x16::<Rgb565>
-        ::render_str("I AM RUSTY BEACON")
+        ::render_str("NON-BLOCKING SPI")
         .stroke(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))))  //  Black
         .fill(Some(Rgb565::from((   0xff, 0xff, 0x00 ))))  //  Yellow
         .translate(Coord::new(20, 16));
 
     //  Render background, circle and text to display
     unsafe {
+        DISPLAY.draw(text);    
         super::batch::draw_blocks(&mut DISPLAY, background)
             .expect("draw blocks fail");
-        ////DISPLAY.draw(background);
+        //DISPLAY.draw(background);
         ////DISPLAY.draw(circle);
-        ////DISPLAY.draw(text);    
     }
     Ok(())
 }
