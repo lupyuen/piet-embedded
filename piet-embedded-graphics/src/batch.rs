@@ -18,9 +18,9 @@ use embedded_hal::{
 use st7735_lcd::ST7735;
 
 /// Max number of pixels per row
-type MaxRowSize = heapless::consts::U10; //// 240;
+type MaxRowSize = heapless::consts::U200; //// 240;
 /// Max number of pixels per block
-type MaxBlockSize = heapless::consts::U20; //// 480;
+type MaxBlockSize = heapless::consts::U400; //// 480;
 
 /// Consecutive color words for a row
 type RowColors = heapless::Vec::<u16, MaxRowSize>;
@@ -85,7 +85,7 @@ where
             x_right,
             y_bottom,
             colors) ? ;
-        i += 1; if i > 10 { break; } ////
+        i += 1; if i > 1000 { break; } ////
     }
     Ok(())
 }
