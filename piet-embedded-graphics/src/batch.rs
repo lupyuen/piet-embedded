@@ -18,9 +18,9 @@ use embedded_hal::{
 use st7735_lcd::ST7735;
 
 /// Max number of pixels per row
-type MaxRowSize = heapless::consts::U240;
+type MaxRowSize = heapless::consts::U10; //// 240;
 /// Max number of pixels per block
-type MaxBlockSize = heapless::consts::U1024;
+type MaxBlockSize = heapless::consts::U20; //// 480;
 
 /// Consecutive color words for a row
 type RowColors = heapless::Vec::<u16, MaxRowSize>;
@@ -77,6 +77,7 @@ where
     let pixels = item_pixels.into_iter();
     let rows = to_rows(pixels);
     let blocks = to_blocks(rows);
+    let mut i = 0;
     for PixelBlock { x_left, x_right, y_top, y_bottom, colors, .. } in blocks {
         display.set_pixels(
             x_left, 
@@ -84,6 +85,7 @@ where
             x_right,
             y_bottom,
             colors) ? ;
+        i += 1; if i > 10 { break; } ////
     }
     Ok(())
 }
@@ -123,7 +125,8 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
     /// Return the next row of contiguous pixels
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            match self.pixels.next() {
+            let next_pixel = self.pixels.next();
+            match next_pixel {
                 None => {
                     if self.first_pixel {
                         return None;  //  No pixels to group
@@ -156,10 +159,11 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
                     }
                     //  If this pixel is adjacent to the previous pixel, add to the row.
                     if x == self.x_right + 1 && y == self.y {
-                        self.colors.push(color)
-                            .expect("row overflow");
-                        self.x_right = x;
-                        continue;
+                        if self.colors.push(color).is_ok() {
+                            //  Don't add pixel if too many pixels in the row.
+                            self.x_right = x;
+                            continue;
+                        }
                     }
                     //  Else return previous pixels as row.
                     let row = PixelRow {
@@ -187,7 +191,8 @@ impl<R: Iterator<Item = PixelRow>> Iterator for BlockIterator<R> {
     /// Return the next block of contiguous pixel rows
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            match self.rows.next() {
+            let next_row = self.rows.next();
+            match next_row {
                 None => {
                     if self.first_row {
                         return None;  //  No rows to group
