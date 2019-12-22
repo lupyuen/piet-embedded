@@ -136,39 +136,41 @@ pub fn test_display() -> MynewtResult<()> {
 
     //  Create square
     let square = Rectangle::<Rgb565>
-        ::new(Coord::new(40, 40), Coord::new(159, 159))
-        .fill(Some(Rgb565::from(( 0x00, 0x00, 0x80 ))));  //  Blue
+        ::new(Coord::new(60, 60), Coord::new(150, 150))
+        .fill(Some(Rgb565::from(( 0x00, 0x00, 0xff ))));  //  Blue
 
     //  Create text
+    #[cfg(not(feature = "noblock_spi"))]    //  If non-blocking SPI is disabled...
+    let display_text = "BLOCKING SPI";      //  Display "BLOCKING SPI"
+
+    #[cfg(feature = "noblock_spi")]         //  If non-blocking SPI is enabled...
+    let display_text = "NON-BLOCKING SPI";  //  Display "NON-BLOCKING SPI"
+
     let text = fonts::Font12x16::<Rgb565>
-        //::render_str("NON-BLOCKING SPI")
-        ::render_str("BLOCKING SPI")
+        ::render_str(display_text)
         .stroke(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))))  //  Black
         .fill(Some(Rgb565::from((   0xff, 0xff, 0x00 ))))  //  Yellow
         .translate(Coord::new(20, 16));
 
     //  Render background, circle and text to display
-    unsafe {
-        /*
-        super::batch::draw_blocks(&mut DISPLAY, text)
-            .expect("draw blocks fail");
-        super::batch::draw_blocks(&mut DISPLAY, background)
-            .expect("draw blocks fail");
-        super::batch::draw_blocks(&mut DISPLAY, circle)
-            .expect("draw blocks fail");
-        super::batch::draw_blocks(&mut DISPLAY, square)
-            .expect("draw blocks fail");
-        super::batch::draw_blocks(&mut DISPLAY, text)
-            .expect("draw blocks fail");
-        */
-
-        DISPLAY.draw(text);    
-        DISPLAY.draw(background);
-        DISPLAY.draw(circle);
-        DISPLAY.draw(square);
-        DISPLAY.draw(text);    
-    }
+    draw_item(text);    
+    draw_item(background);
+    draw_item(circle);
+    draw_item(square);
+    draw_item(text);    
     Ok(())
+}
+
+pub fn draw_item<T>(item: T)
+where T: IntoIterator<Item = Pixel<Rgb565>> {
+    #[cfg(not(feature = "noblock_spi"))]  //  If non-blocking SPI is disabled...
+    unsafe { DISPLAY.draw(item) };        //  Draw text or graphics the usual slow way
+
+    #[cfg(feature = "noblock_spi")]       //  If non-blocking SPI is enabled...
+    super::batch::draw_blocks(            //  Draw text or graphics the new faster way, as pixel blocks
+        unsafe { &mut DISPLAY },
+        item
+    ).expect("draw blocks fail");
 }
 
 /// Display Driver
