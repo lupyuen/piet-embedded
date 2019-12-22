@@ -126,8 +126,9 @@ pub fn show_touch(x: u16, y: u16) -> MynewtResult<()> {
 pub fn test_display() -> MynewtResult<()> {
     //  Create black background
     let background = Rectangle::<Rgb565>
-        ::new(Coord::new(0, 0), Coord::new(239, 239))
-        .fill(Some(Rgb565::from(( 0xff, 0xff, 0x00 ))));  //  Black
+        //::new(Coord::new(0, 0), Coord::new(239, 239))
+        ::new(Coord::new(0, 0), Coord::new(239, 119))
+        .fill(Some(Rgb565::from(( 0x80, 0x80, 0x00 ))));  //  Black
 
     //  Create circle
     let circle = Circle::<Rgb565>
