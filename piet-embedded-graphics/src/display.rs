@@ -140,11 +140,11 @@ pub fn test_display() -> MynewtResult<()> {
         .fill(Some(Rgb565::from(( 0x00, 0x00, 0xff ))));  //  Blue
 
     //  Create text
-    #[cfg(not(feature = "noblock_spi"))]    //  If non-blocking SPI is disabled...
-    let display_text = "BLOCKING SPI";      //  Display "BLOCKING SPI"
+    #[cfg(not(feature = "noblock_spi"))]      //  If non-blocking SPI is disabled...
+    let display_text = " BLOCKING SPI ";      //  Display " BLOCKING SPI "
 
-    #[cfg(feature = "noblock_spi")]         //  If non-blocking SPI is enabled...
-    let display_text = "NON-BLOCKING SPI";  //  Display "NON-BLOCKING SPI"
+    #[cfg(feature = "noblock_spi")]           //  If non-blocking SPI is enabled...
+    let display_text = " NON-BLOCKING SPI ";  //  Display " NON-BLOCKING SPI "
 
     let text = fonts::Font12x16::<Rgb565>
         ::render_str(display_text)
