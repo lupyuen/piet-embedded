@@ -1,3 +1,5 @@
+//! Batch the pixels to be rendered into Pixel Rows and Pixel Blocks (contiguous Pixel Rows).
+//! This enables the pixels to be rendered efficiently as Pixel Blocks, which may be transmitted in a single Non-Blocking SPI request.
 use embedded_graphics::{
     prelude::*,
     fonts::Font as EFont,
@@ -18,9 +20,9 @@ use embedded_hal::{
 use st7735_lcd::ST7735;
 
 /// Max number of pixels per Pixel Row
-type MaxRowSize = heapless::consts::U20; //// 240;
+type MaxRowSize = heapless::consts::U20;
 /// Max number of pixels per Pixel Block
-type MaxBlockSize = heapless::consts::U40; //// 480;
+type MaxBlockSize = heapless::consts::U40;
 
 /// Consecutive color words for a Pixel Row
 type RowColors = heapless::Vec::<u16, MaxRowSize>;
@@ -30,44 +32,67 @@ type BlockColors = heapless::Vec::<u16, MaxBlockSize>;
 /// Iterator for each Pixel Row in the pixel data. A Pixel Row consists of contiguous pixels on the same row.
 #[derive(Debug, Clone)]
 pub struct RowIterator<P: Iterator<Item = Pixel<Rgb565>>> {
+    /// Pixels to be batched into rows
     pixels:      P,
+    /// Start column number
     x_left:      u16,
+    /// End column number
     x_right:     u16,
+    /// Row number
     y:           u16,
+    /// List of pixel colours for the entire row
     colors:      RowColors,
+    /// True if this is the first pixel for the row
     first_pixel: bool,
 }
 
 /// Iterator for each Pixel Block in the pixel data. A Pixel Block consists of contiguous Pixel Rows with the same start and end column number.
 #[derive(Debug, Clone)]
 pub struct BlockIterator<R: Iterator<Item = PixelRow>> {
+    /// Pixel Rows to be batched into blocks
     rows:        R,
+    /// Start column number
     x_left:      u16,
+    /// End column number
     x_right:     u16,
+    /// Start row number
     y_top:       u16,
+    /// End row number
     y_bottom:    u16,
+    /// List of pixel colours for the entire block, row by row
     colors:      BlockColors,
+    /// True if this is the first row for the block
     first_row:   bool,
 }
 
 /// A row of contiguous pixels
 pub struct PixelRow {
+    /// Start column number
     pub x_left:  u16,
+    /// End column number
     pub x_right: u16,
+    /// Row number
     pub y:       u16,
+    /// List of pixel colours for the entire row
     pub colors:  RowColors,
 }
 
 /// A block of contiguous pixel rows with the same start and end column number
 pub struct PixelBlock {
+    /// Start column number
     pub x_left:   u16,
+    /// End column number
     pub x_right:  u16,
+    /// Start row number
     pub y_top:    u16,
+    /// End row number
     pub y_bottom: u16,
+    /// List of pixel colours for the entire block, row by row
     pub colors:   BlockColors,
 }
 
 /// Draw the pixels in the item as Pixel Blocks of contiguous Pixel Rows. The pixels are grouped by row then by block.
+#[allow(dead_code)]
 pub fn draw_blocks<SPI, DC, RST, T>(display: &mut ST7735<SPI, DC, RST>, item_pixels: T) -> Result<(),()>
 where
     SPI: spi::Write<u8>,
@@ -89,6 +114,7 @@ where
             x_right,
             y_bottom,
             colors) ? ;
+        
     }
     Ok(())
 }
