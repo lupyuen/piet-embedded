@@ -126,14 +126,18 @@ pub fn show_touch(x: u16, y: u16) -> MynewtResult<()> {
 pub fn test_display() -> MynewtResult<()> {
     //  Create black background
     let background = Rectangle::<Rgb565>
-        //::new(Coord::new(0, 0), Coord::new(239, 239))
-        ::new(Coord::new(0, 0), Coord::new(239, 119))
-        .fill(Some(Rgb565::from(( 0x80, 0x80, 0x00 ))));  //  Black
+        ::new(Coord::new(0, 0), Coord::new(239, 239))
+        .fill(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))));  //  Black
 
     //  Create circle
     let circle = Circle::<Rgb565>
         ::new(Coord::new(40, 40), 40)
         .fill(Some(Rgb565::from(( 0xff, 0x00, 0xff ))));  //  Magenta
+
+    //  Create square
+    let square = Rectangle::<Rgb565>
+        ::new(Coord::new(40, 40), Coord::new(159, 159))
+        .fill(Some(Rgb565::from(( 0x00, 0x00, 0x80 ))));  //  Blue
 
     //  Create text
     let text = fonts::Font12x16::<Rgb565>
@@ -152,6 +156,8 @@ pub fn test_display() -> MynewtResult<()> {
             .expect("draw blocks fail");
         super::batch::draw_blocks(&mut DISPLAY, circle)
             .expect("draw blocks fail");
+        super::batch::draw_blocks(&mut DISPLAY, square)
+            .expect("draw blocks fail");
         super::batch::draw_blocks(&mut DISPLAY, text)
             .expect("draw blocks fail");
         */
@@ -159,6 +165,7 @@ pub fn test_display() -> MynewtResult<()> {
         DISPLAY.draw(text);    
         DISPLAY.draw(background);
         DISPLAY.draw(circle);
+        DISPLAY.draw(square);
         DISPLAY.draw(text);    
     }
     Ok(())
