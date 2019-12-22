@@ -74,11 +74,15 @@ where
     DC: OutputPin,
     RST: OutputPin,
     T: IntoIterator<Item = Pixel<Rgb565>>, {
+    //  Get the pixels for the item to be rendered.
     let pixels = item_pixels.into_iter();
+    //  Batch the pixels into Pixel Rows.
     let rows = to_rows(pixels);
+    //  Batch the Pixel Rows into Pixel Blocks.
     let blocks = to_blocks(rows);
-    let mut i = 0;
+    //  For each Pixel Block...
     for PixelBlock { x_left, x_right, y_top, y_bottom, colors, .. } in blocks {
+        //  Render the Pixel Block.
         display.set_pixels(
             x_left, 
             y_top,
