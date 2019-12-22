@@ -18,11 +18,14 @@ use embedded_hal::{
     },
 };
 use st7735_lcd::ST7735;
+use mynewt::{
+    sys::console,
+};
 
 /// Max number of pixels per Pixel Row
-type MaxRowSize = heapless::consts::U20;
+type MaxRowSize = heapless::consts::U100;
 /// Max number of pixels per Pixel Block
-type MaxBlockSize = heapless::consts::U40;
+type MaxBlockSize = heapless::consts::U200;
 
 /// Consecutive color words for a Pixel Row
 type RowColors = heapless::Vec::<u16, MaxRowSize>;
@@ -114,7 +117,12 @@ where
             x_right,
             y_bottom,
             colors) ? ;
-        
+
+        //  Dump out the Pixel Blocks for the square in test_display()
+        /* if x_left >= 60 && x_left <= 150 && x_right >= 60 && x_right <= 150 && y_top >= 60 && y_top <= 150 && y_bottom >= 60 && y_bottom <= 150 {
+            console::print("pixel block ("); console::printint(x_left as i32); console::print(", "); console::printint(y_top as i32); ////
+            console::print("), ("); console::printint(x_right as i32); console::print(", "); console::printint(y_bottom as i32); console::print(")\n"); ////    
+        } */
     }
     Ok(())
 }
