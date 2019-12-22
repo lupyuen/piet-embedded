@@ -17,17 +17,17 @@ use embedded_hal::{
 };
 use st7735_lcd::ST7735;
 
-/// Max number of pixels per row
+/// Max number of pixels per Pixel Row
 type MaxRowSize = heapless::consts::U20; //// 240;
-/// Max number of pixels per block
+/// Max number of pixels per Pixel Block
 type MaxBlockSize = heapless::consts::U40; //// 480;
 
-/// Consecutive color words for a row
+/// Consecutive color words for a Pixel Row
 type RowColors = heapless::Vec::<u16, MaxRowSize>;
-/// Consecutive color words for a block
+/// Consecutive color words for a Pixel Block
 type BlockColors = heapless::Vec::<u16, MaxBlockSize>;
 
-/// Iterator for each row in the pixel data
+/// Iterator for each Pixel Row in the pixel data. A Pixel Row consists of contiguous pixels on the same row.
 #[derive(Debug, Clone)]
 pub struct RowIterator<P: Iterator<Item = Pixel<Rgb565>>> {
     pixels:      P,
@@ -38,7 +38,7 @@ pub struct RowIterator<P: Iterator<Item = Pixel<Rgb565>>> {
     first_pixel: bool,
 }
 
-/// Iterator for each block in the pixel data
+/// Iterator for each Pixel Block in the pixel data. A Pixel Block consists of contiguous Pixel Rows with the same start and end column number.
 #[derive(Debug, Clone)]
 pub struct BlockIterator<R: Iterator<Item = PixelRow>> {
     rows:        R,
@@ -58,7 +58,7 @@ pub struct PixelRow {
     pub colors:  RowColors,
 }
 
-/// A block of contiguous row
+/// A block of contiguous pixel rows with the same start and end column number
 pub struct PixelBlock {
     pub x_left:   u16,
     pub x_right:  u16,

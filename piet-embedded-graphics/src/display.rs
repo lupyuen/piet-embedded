@@ -152,7 +152,7 @@ pub fn test_display() -> MynewtResult<()> {
         .fill(Some(Rgb565::from((   0xff, 0xff, 0x00 ))))  //  Yellow
         .translate(Coord::new(20, 16));
 
-    //  Render background, circle and text to display
+    //  Render background, circle, square and text to display
     draw_item(text);    
     draw_item(background);
     draw_item(circle);
