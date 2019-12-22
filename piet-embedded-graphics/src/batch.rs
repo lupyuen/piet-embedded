@@ -67,7 +67,7 @@ pub struct PixelBlock {
     pub colors:   BlockColors,
 }
 
-/// Draw the pixels as blocks of contiguous pixel rows
+/// Draw the pixels in the item as Pixel Blocks of contiguous Pixel Rows. The pixels are grouped by row then by block.
 pub fn draw_blocks<SPI, DC, RST, T>(display: &mut ST7735<SPI, DC, RST>, item_pixels: T) -> Result<(),()>
 where
     SPI: spi::Write<u8>,
@@ -89,7 +89,7 @@ where
     Ok(())
 }
 
-/// Batch the pixels into rows of contiguous pixels
+/// Batch the pixels into Pixel Rows, which are contiguous pixels on the same row
 fn to_rows<P>(pixels: P) -> RowIterator<P>
 where
     P: Iterator<Item = Pixel<Rgb565>>, {
@@ -103,7 +103,7 @@ where
     }
 }
 
-/// Batch the rows into blocks, which are contiguous rows
+/// Batch the Pixel Rows into Pixel Blocks, which are contiguous Pixel Rows with the same start and end column number
 fn to_blocks<R>(rows: R) -> BlockIterator<R>
 where
     R: Iterator<Item = PixelRow>, {
@@ -121,7 +121,7 @@ where
 impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
     type Item = PixelRow;
 
-    /// Return the next row of contiguous pixels
+    /// Return the next Pixel Row of contiguous pixels on the same row
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             let next_pixel = self.pixels.next();
@@ -187,7 +187,7 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
 impl<R: Iterator<Item = PixelRow>> Iterator for BlockIterator<R> {
     type Item = PixelBlock;
 
-    /// Return the next block of contiguous pixel rows
+    /// Return the next Pixel Block of contiguous Pixel Rows with the same start and end column number
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             let next_row = self.rows.next();
