@@ -73,7 +73,7 @@ where
     SPI: spi::Write<u8>,
     DC: OutputPin,
     RST: OutputPin,
-    T: IntoIterator<Item = Pixel<Rgb565>> + Dimensions, {
+    T: IntoIterator<Item = Pixel<Rgb565>>, {
     let pixels = item_pixels.into_iter();
     let rows = to_rows(pixels);
     let blocks = to_blocks(rows);
@@ -85,7 +85,6 @@ where
             x_right,
             y_bottom,
             colors) ? ;
-        //  i += 1; if i > 1000 { break; } ////
     }
     Ok(())
 }
