@@ -25,6 +25,6 @@ cortex-m-rt          = "0.6.10" ####
 piet-test = { version = "0.0.7", path = "../piet-test" }
 
 [features]
-default = []
-# default = ["noblock_spi"]
+# default = []
+default = ["noblock_spi"]
 noblock_spi = []  # Render graphics and text with Non-Blocking SPI
