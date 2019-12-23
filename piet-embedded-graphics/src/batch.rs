@@ -156,7 +156,9 @@ where
     }
 }    
 
+/// Implement the Iterator for Pixel Rows
 impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
+    /// This Iterator returns Pixel Rows
     type Item = PixelRow;
 
     /// Return the next Pixel Row of contiguous pixels on the same row
@@ -222,7 +224,9 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
     }
 }
 
+/// Implement the Iterator for Pixel Blocks
 impl<R: Iterator<Item = PixelRow>> Iterator for BlockIterator<R> {
+    /// This Iterator returns Pixel Blocks
     type Item = PixelBlock;
 
     /// Return the next Pixel Block of contiguous Pixel Rows with the same start and end column number
