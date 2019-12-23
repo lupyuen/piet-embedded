@@ -163,10 +163,12 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
 
     /// Return the next Pixel Row of contiguous pixels on the same row
     fn next(&mut self) -> Option<Self::Item> {
+        //  Loop over all pixels until we have composed a Pixel Row, or we have run out of pixels.
         loop {
+            //  Get the next pixel.
             let next_pixel = self.pixels.next();
             match next_pixel {
-                None => {
+                None => {  //  If no more pixels...
                     if self.first_pixel {
                         return None;  //  No pixels to group
                     }                    
@@ -181,7 +183,7 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
                     self.first_pixel = true;
                     return Some(row);
                 }
-                Some(Pixel(coord, color)) => {
+                Some(Pixel(coord, color)) => {  //  If there is a pixel...
                     let x = coord.0 as u16;
                     let y = coord.1 as u16;
                     let color = color.0;
@@ -231,10 +233,12 @@ impl<R: Iterator<Item = PixelRow>> Iterator for BlockIterator<R> {
 
     /// Return the next Pixel Block of contiguous Pixel Rows with the same start and end column number
     fn next(&mut self) -> Option<Self::Item> {
+        //  Loop over all Pixel Rows until we have composed a Pixel Block, or we have run out of Pixel Rows.
         loop {
+            //  Get the next Pixel Row.
             let next_row = self.rows.next();
             match next_row {
-                None => {
+                None => {  //  If no more Pixel Rows...
                     if self.first_row {
                         return None;  //  No rows to group
                     }                    
@@ -250,7 +254,7 @@ impl<R: Iterator<Item = PixelRow>> Iterator for BlockIterator<R> {
                     self.first_row = true;
                     return Some(row);
                 }
-                Some(PixelRow { x_left, x_right, y, colors, .. }) => {
+                Some(PixelRow { x_left, x_right, y, colors, .. }) => {  //  If there is a Pixel Row...
                     //  Save the first row as the block start and handle next block.
                     if self.first_row {
                         self.first_row = false;
