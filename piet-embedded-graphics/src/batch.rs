@@ -127,7 +127,8 @@ where
     Ok(())
 }
 
-/// Batch the pixels into Pixel Rows, which are contiguous pixels on the same row
+/// Batch the pixels into Pixel Rows, which are contiguous pixels on the same row.
+/// P can be any Pixel Iterator (e.g. a rectangle).
 fn to_rows<P>(pixels: P) -> RowIterator<P>
 where
     P: Iterator<Item = Pixel<Rgb565>>, {
@@ -142,6 +143,7 @@ where
 }
 
 /// Batch the Pixel Rows into Pixel Blocks, which are contiguous Pixel Rows with the same start and end column number
+/// R can be any Pixel Row Iterator.
 fn to_blocks<R>(rows: R) -> BlockIterator<R>
 where
     R: Iterator<Item = PixelRow>, {
@@ -156,7 +158,8 @@ where
     }
 }    
 
-/// Implement the Iterator for Pixel Rows
+/// Implement the Iterator for Pixel Rows.
+/// P can be any Pixel Iterator (e.g. a rectangle).
 impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
     /// This Iterator returns Pixel Rows
     type Item = PixelRow;
@@ -226,7 +229,8 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
     }
 }
 
-/// Implement the Iterator for Pixel Blocks
+/// Implement the Iterator for Pixel Blocks.
+/// R can be any Pixel Row Iterator.
 impl<R: Iterator<Item = PixelRow>> Iterator for BlockIterator<R> {
     /// This Iterator returns Pixel Blocks
     type Item = PixelBlock;
