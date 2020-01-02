@@ -17,12 +17,12 @@ embedded-graphics    = "0.5.2"
 embedded-hal         = "0.2.3"
 st7735-lcd           = { features = [ "graphics" ], path = "../../st7735-lcd-batch-rs" } #### TODO: https://github.com/lupyuen/st7735-lcd-batch-rs
 arrayvec             = { version = "0.5.1", default-features = false }
-mynewt = { path = "../../stm32bluepill-mynewt-sensor/rust/mynewt" } # Import mynewt library
+mynewt = { path = "../../mynewt" } # Import mynewt library
 cortex-m             = "0.6.1" ####
 cortex-m-rt          = "0.6.10" ####
 
 [dev-dependencies]
-piet-test = { version = "0.0.7", path = "../piet-test" }
+# piet-test = { version = "0.0.7", path = "../piet-test" }
 
 [features]
 # default   = []               # Disable batching  
