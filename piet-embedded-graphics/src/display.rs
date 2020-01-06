@@ -122,46 +122,8 @@ pub fn show_touch(x: u16, y: u16) -> MynewtResult<()> {
     Ok(())
 }
 
-/// Render the ST7789 display connected to SPI port 0. `start_display()` must have been called earlier.
-pub fn test_display() -> MynewtResult<()> {
-    //  Create black background
-    let background = Rectangle::<Rgb565>
-        ::new(Coord::new(0, 0), Coord::new(239, 239))
-        .fill(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))));  //  Black
-
-    //  Create circle
-    let circle = Circle::<Rgb565>
-        ::new(Coord::new(40, 40), 40)
-        .fill(Some(Rgb565::from(( 0xff, 0x00, 0xff ))));  //  Magenta
-
-    //  Create square
-    let square = Rectangle::<Rgb565>
-        ::new(Coord::new(60, 60), Coord::new(150, 150))
-        .fill(Some(Rgb565::from(( 0x00, 0x00, 0xff ))));  //  Blue
-
-    //  Create text
-    #[cfg(not(feature = "noblock_spi"))]      //  If non-blocking SPI is disabled...
-    let display_text = " BLOCKING SPI ";      //  Display " BLOCKING SPI "
-
-    #[cfg(feature = "noblock_spi")]           //  If non-blocking SPI is enabled...
-    let display_text = " NON-BLOCKING SPI ";  //  Display " NON-BLOCKING SPI "
-
-    let text = fonts::Font12x16::<Rgb565>
-        ::render_str(display_text)
-        .stroke(Some(Rgb565::from(( 0x00, 0x00, 0x00 ))))  //  Black
-        .fill(Some(Rgb565::from((   0xff, 0xff, 0x00 ))))  //  Yellow
-        .translate(Coord::new(20, 16));
-
-    //  Render background, circle, square and text to display
-    draw_item(text);    
-    draw_item(background);
-    draw_item(circle);
-    draw_item(square);
-    draw_item(text);    
-    Ok(())
-}
-
-pub fn draw_item<T>(item: T)
+/// Draw the item to the display
+pub fn draw_to_display<T>(item: T)
 where T: IntoIterator<Item = Pixel<Rgb565>> {
     #[cfg(not(feature = "noblock_spi"))]  //  If batching is disabled...
     unsafe { DISPLAY.draw(item) };        //  Draw text or graphics the usual slow way
@@ -180,3 +142,5 @@ type Display = ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;
 /// GPIO Pin for Display Backlight
 static mut BACKLIGHT_HIGH: mynewt::GPIO = fill_zero!(MynewtGPIO);  //  Will be created in `start_display()`
 type MynewtGPIO = mynewt::GPIO;
+
+//  `test_display()` has been moved to `pinetime-rust-mynewt/rust/app/src/display.rs`
