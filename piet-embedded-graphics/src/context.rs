@@ -85,6 +85,12 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn clear(&mut self, color: Color) {
+        //  TODO: We can only clear the screen once. Second time will crash due to low stack space.
+        static mut first_clear: bool = true;
+        unsafe {
+            if !first_clear { return; }
+            first_clear = false;    
+        }
         //  Create brush
         let brush = self.solid_brush(color);
         //  Create rectangle to fill the screen
@@ -92,7 +98,7 @@ impl RenderContext for EmbedRenderContext {
             DISPLAY_WIDTH  as f64 - 1., 
             DISPLAY_HEIGHT as f64 - 1.);
         //  Fill the screen
-        ////self.fill(shape, &brush);
+        self.fill(shape, &brush);
     }
 
     fn solid_brush(&mut self, color: Color) -> brush::Brush {
@@ -140,7 +146,7 @@ impl RenderContext for EmbedRenderContext {
             .fill(Some(fill))
             .translate(get_transform_stack())
             ;
-        unsafe { display::DISPLAY.draw(rect); }
+        display::draw_to_display(rect);
 
         ////self.ctx.set_fill_rule(embedded_graphics::FillRule::Winding);
         ////self.ctx.fill();
@@ -192,7 +198,7 @@ impl RenderContext for EmbedRenderContext {
                         .stroke_width(width as u8)
                         .translate(get_transform_stack())
                         ;
-                    unsafe { display::DISPLAY.draw(line); }
+                    display::draw_to_display(line);
                     ////self.ctx.line_to(p.x, p.y);
                     if (first.is_none()) { first = Some(p); }
                     last = p;
@@ -208,7 +214,7 @@ impl RenderContext for EmbedRenderContext {
                         .stroke_width(width as u8)
                         .translate(get_transform_stack())
                         ;
-                    unsafe { display::DISPLAY.draw(line); }
+                    display::draw_to_display(line);
                     ////let q = QuadBez::new(last, p1, p2);
                     ////let c = q.raise();
                     ////self.ctx
@@ -227,7 +233,7 @@ impl RenderContext for EmbedRenderContext {
                         .stroke_width(width as u8)
                         .translate(get_transform_stack())
                         ;
-                    unsafe { display::DISPLAY.draw(line); }
+                    display::draw_to_display(line);
                     ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                     if (first.is_none()) { first = Some(p1); }
                     last = p3;
@@ -242,7 +248,7 @@ impl RenderContext for EmbedRenderContext {
                         .stroke_width(width as u8)
                         .translate(get_transform_stack())
                         ;
-                    unsafe { display::DISPLAY.draw(line); }
+                    display::draw_to_display(line);
                     ////self.ctx.close_path()
                 }
             }
@@ -294,7 +300,7 @@ impl RenderContext for EmbedRenderContext {
             ;
         
         //  Render text to display
-        unsafe { display::DISPLAY.draw(text); }
+        display::draw_to_display(text);
 
         // TODO: bounding box for text
         /*
@@ -326,13 +332,12 @@ impl RenderContext for EmbedRenderContext {
     }
 
     fn transform(&mut self, _transform: Affine) {
-        console::print("transform ");  ////  TODO
+        /* console::print("transform ");
         for f in &_transform.0 {
             console::printint(*f as i32);            
             console::print(", ");            
         }
-        console::print("\n"); // console::flush();            
-
+        console::print("\n"); */
         unsafe {
             let mut point = TRANSFORM_STACK.pop()
                 .expect("transform stack empty");

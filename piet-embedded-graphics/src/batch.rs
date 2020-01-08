@@ -23,9 +23,9 @@ use mynewt::{
 };
 
 /// Max number of pixels per Pixel Row
-type MaxRowSize = heapless::consts::U100;
+type MaxRowSize = heapless::consts::U50;
 /// Max number of pixels per Pixel Block
-type MaxBlockSize = heapless::consts::U200;
+type MaxBlockSize = heapless::consts::U100;
 
 /// Consecutive color words for a Pixel Row
 type RowColors = heapless::Vec::<u16, MaxRowSize>;
