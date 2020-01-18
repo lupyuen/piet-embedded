@@ -30,7 +30,7 @@ use arrayvec::ArrayVec;  ////
 
 use kurbo::{Point, Rect, Size, Vec2};
 
-use crate::{IntoBrush, RenderContext};
+////use crate::{IntoBrush, RenderContext};
 
 use crate::Color;
 
@@ -334,6 +334,7 @@ impl LinearGradient {
     /// onto points in `rect`.
     ///
     /// [`FixedLinearGradient`]: struct.FixedLinearGradient.html
+    #[allow(dead_code)] ////
     fn resolve(&self, rect: Rect) -> FixedLinearGradient {
         FixedLinearGradient {
             start: self.start.resolve(rect),
@@ -397,6 +398,7 @@ impl RadialGradient {
     /// onto points in `rect`.
     ///
     /// [`FixedRadialGradient`]: struct.FixedRadialGradient.html
+    #[allow(dead_code)] ////
     fn resolve(&self, rect: Rect) -> FixedRadialGradient {
         let scale_len = match self.scale_mode {
             ScaleMode::Fill => rect.width().max(rect.height()),
@@ -465,6 +467,7 @@ impl From<FixedRadialGradient> for FixedGradient {
     }
 */ ////
 
+#[allow(dead_code)] ////
 fn equalize_sides_preserving_center(rect: Rect, new_len: f64) -> Rect {
     let size = Size::new(new_len, new_len);
     let origin = rect.center() - size.to_vec2() / 2.;

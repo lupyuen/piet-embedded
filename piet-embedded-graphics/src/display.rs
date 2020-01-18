@@ -4,10 +4,6 @@ use embedded_graphics::{
     prelude::*,
     fonts,
     pixelcolor::Rgb565,
-    primitives::{
-        Circle,
-        Rectangle,
-    },
 };
 use embedded_hal::{
     self,

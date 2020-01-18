@@ -2,25 +2,15 @@
 //! This enables the pixels to be rendered efficiently as Pixel Blocks, which may be transmitted in a single Non-Blocking SPI request.
 use embedded_graphics::{
     prelude::*,
-    fonts::Font as EFont,
-    primitives::{
-        Line,
-        Rectangle,
-    },
     pixelcolor::Rgb565, 
-    Drawing, 
 };
 use embedded_hal::{
     digital::v2::OutputPin,
     blocking::{ 
         spi,
-        delay::DelayMs,
     },
 };
 use st7735_lcd::ST7735;
-use mynewt::{
-    sys::console,
-};
 
 /// Max number of pixels per Pixel Row
 type MaxRowSize = heapless::consts::U50;

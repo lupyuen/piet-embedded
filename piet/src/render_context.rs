@@ -6,8 +6,9 @@
 use kurbo::{Affine, Point, Rect, Shape};
 
 use crate::{
-    Color, Error, FixedGradient, FixedLinearGradient, FixedRadialGradient, LinearGradient,
-    RadialGradient, StrokeStyle, Text, TextLayout,
+    Color, Error, ////FixedGradient, FixedLinearGradient, FixedRadialGradient, LinearGradient,
+    ////RadialGradient, 
+    StrokeStyle, Text, TextLayout,
 };
 
 /// A requested interpolation mode for drawing images.

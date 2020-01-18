@@ -6,8 +6,10 @@
 use kurbo::{Affine, Point, Rect, Shape};
 
 use crate::{
-    Color, Error, FixedGradient, Font, FontBuilder, HitTestPoint, HitTestTextPosition, ImageFormat,
-    InterpolationMode, IntoBrush, RenderContext, StrokeStyle, Text, TextLayout, TextLayoutBuilder,
+    Color, Error, ////FixedGradient, 
+    Font, FontBuilder, HitTestPoint, HitTestTextPosition, ////ImageFormat,
+    ////InterpolationMode, 
+    IntoBrush, RenderContext, StrokeStyle, Text, TextLayout, TextLayoutBuilder,
 };
 
 /// A render context that doesn't render.

@@ -14,7 +14,6 @@ use embedded_graphics::{
         Rectangle,
     },
     pixelcolor::Rgb565, 
-    Drawing, 
 };
 use mynewt::sys::console;
 use crate::{ brush, text };
@@ -86,10 +85,10 @@ impl RenderContext for EmbedRenderContext {
 
     fn clear(&mut self, color: Color) {
         //  TODO: We can only clear the screen once. Second time will crash due to low stack space.
-        static mut first_clear: bool = true;
+        static mut FIRST_CLEAR: bool = true;
         unsafe {
-            if !first_clear { return; }
-            first_clear = false;    
+            if !FIRST_CLEAR { return; }
+            FIRST_CLEAR = false;    
         }
         //  Create brush
         let brush = self.solid_brush(color);
@@ -185,7 +184,7 @@ impl RenderContext for EmbedRenderContext {
             match el {
                 PathEl::MoveTo(p) => {
                     ////self.ctx.move_to(p.x, p.y);
-                    if (first.is_none()) { first = Some(p); }
+                    if first.is_none() { first = Some(p); }
                     last = p;
                 }
                 PathEl::LineTo(p) => {
@@ -200,7 +199,7 @@ impl RenderContext for EmbedRenderContext {
                         ;
                     display::draw_to_display(line);
                     ////self.ctx.line_to(p.x, p.y);
-                    if (first.is_none()) { first = Some(p); }
+                    if first.is_none() { first = Some(p); }
                     last = p;
                 }
                 PathEl::QuadTo(p1, p2) => {
@@ -219,7 +218,7 @@ impl RenderContext for EmbedRenderContext {
                     ////let c = q.raise();
                     ////self.ctx
                         ////.curve_to(c.p1.x, c.p1.y, c.p2.x, c.p2.y, p2.x, p2.y);
-                    if (first.is_none()) { first = Some(p1); }
+                    if first.is_none() { first = Some(p1); }
                     last = p2;
                 }
                 PathEl::CurveTo(p1, _p2, p3) => {
@@ -235,7 +234,7 @@ impl RenderContext for EmbedRenderContext {
                         ;
                     display::draw_to_display(line);
                     ////self.ctx.curve_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-                    if (first.is_none()) { first = Some(p1); }
+                    if first.is_none() { first = Some(p1); }
                     last = p3;
                 }
                 PathEl::ClosePath => {
