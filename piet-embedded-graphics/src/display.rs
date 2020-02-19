@@ -131,6 +131,11 @@ where T: IntoIterator<Item = Pixel<Rgb565>> {
     ).expect("draw blocks fail");
 }
 
+/// Draw the pixel colours to the display at the window from (sx,sy) to (ex,ey)
+pub fn set_display_pixels<P: IntoIterator<Item = u16>>(sx: u16, sy: u16, ex: u16, ey: u16, colors: P) -> Result <(), ()> {
+    unsafe { DISPLAY.set_pixels(sx, sy, ex, ey, colors) }
+}
+
 /// Display Driver
 pub static mut DISPLAY: Display = fill_zero!(Display);               //  Will be created in `start_display()`
 type Display = ST7735<mynewt::SPI, mynewt::GPIO, mynewt::GPIO>;

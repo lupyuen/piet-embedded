@@ -23,4 +23,4 @@ pub use text::{
     EmbedTextLayout,
     EmbedTextLayoutBuilder,
 };
-pub use display::{ start_display, draw_to_display, show_touch };
+pub use display::{ start_display, draw_to_display, set_display_pixels, show_touch };
