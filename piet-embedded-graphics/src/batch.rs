@@ -28,11 +28,11 @@ pub struct RowIterator<P: Iterator<Item = Pixel<Rgb565>>> {
     /// Pixels to be batched into rows
     pixels:      P,
     /// Start column number
-    x_left:      u16,
+    x_left:      u8,
     /// End column number
-    x_right:     u16,
+    x_right:     u8,
     /// Row number
-    y:           u16,
+    y:           u8,
     /// List of pixel colours for the entire row
     colors:      RowColors,
     /// True if this is the first pixel for the row
@@ -45,13 +45,13 @@ pub struct BlockIterator<R: Iterator<Item = PixelRow>> {
     /// Pixel Rows to be batched into blocks
     rows:        R,
     /// Start column number
-    x_left:      u16,
+    x_left:      u8,
     /// End column number
-    x_right:     u16,
+    x_right:     u8,
     /// Start row number
-    y_top:       u16,
+    y_top:       u8,
     /// End row number
-    y_bottom:    u16,
+    y_bottom:    u8,
     /// List of pixel colours for the entire block, row by row
     colors:      BlockColors,
     /// True if this is the first row for the block
@@ -61,11 +61,11 @@ pub struct BlockIterator<R: Iterator<Item = PixelRow>> {
 /// A row of contiguous pixels
 pub struct PixelRow {
     /// Start column number
-    pub x_left:  u16,
+    pub x_left:  u8,
     /// End column number
-    pub x_right: u16,
+    pub x_right: u8,
     /// Row number
-    pub y:       u16,
+    pub y:       u8,
     /// List of pixel colours for the entire row
     pub colors:  RowColors,
 }
@@ -73,13 +73,13 @@ pub struct PixelRow {
 /// A block of contiguous pixel rows with the same start and end column number
 pub struct PixelBlock {
     /// Start column number
-    pub x_left:   u16,
+    pub x_left:   u8,
     /// End column number
-    pub x_right:  u16,
+    pub x_right:  u8,
     /// Start row number
-    pub y_top:    u16,
+    pub y_top:    u8,
     /// End row number
-    pub y_bottom: u16,
+    pub y_bottom: u8,
     /// List of pixel colours for the entire block, row by row
     pub colors:   BlockColors,
 }
@@ -102,10 +102,10 @@ where
     for PixelBlock { x_left, x_right, y_top, y_bottom, colors, .. } in blocks {
         //  Render the Pixel Block.
         display.set_pixels(
-            x_left, 
-            y_top,
-            x_right,
-            y_bottom,
+            x_left as u16, 
+            y_top as u16,
+            x_right as u16,
+            y_bottom as u16,
             colors) ? ;
 
         //  Dump out the Pixel Blocks for the square in test_display()
@@ -177,8 +177,8 @@ impl<P: Iterator<Item = Pixel<Rgb565>>> Iterator for RowIterator<P> {
                     return Some(row);
                 }
                 Some(Pixel(coord, color)) => {  //  If there is a pixel...
-                    let x = coord.0 as u16;
-                    let y = coord.1 as u16;
+                    let x = coord.0 as u8;
+                    let y = coord.1 as u8;
                     let color = color.0;
                     //  Save the first pixel as the row start and handle next pixel.
                     if self.first_pixel {
